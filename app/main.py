@@ -549,24 +549,6 @@ def _render_free_sim(df: pd.DataFrame) -> None:
 
 # --- Rellena tu cuadro (predice el Mundial entero) --------------------------
 
-@st.cache_data(ttl=1800, show_spinner=False)
-def group_probs() -> dict:
-    """Distribución de posiciones por grupo (para la probabilidad del pronóstico)."""
-    return _mc().group_position_probs(20000, seed=11)
-
-
-def _format_one_in(one_in: float) -> str:
-    if one_in < 1_000:
-        return f"1 entre {one_in:,.0f}".replace(",", ".")
-    if one_in < 1_000_000:
-        return f"1 entre {one_in/1e3:.1f} mil".replace(".", ",")
-    if one_in < 1_000_000_000:
-        return f"1 entre {one_in/1e6:.1f} millones".replace(".", ",")
-    if one_in < 1e12:
-        return f"1 entre {one_in/1e9:.1f} mil millones".replace(".", ",")
-    return f"1 entre {one_in:.1e}".replace(".", ",")
-
-
 def _render_fill_bracket(df: pd.DataFrame) -> None:
     st.markdown(
         "<style>div[data-testid='stButton'] button[kind='primary']{background:#0b6b57!important;"
@@ -705,39 +687,10 @@ def _render_fill_bracket(df: pd.DataFrame) -> None:
     _spacer(bcols[5], int((2 ** 4 - 1) * unit / 2))
     bcols[5].success(f"🏆 {champ}")
 
-    # PASO 4 — probabilidad del pronóstico completo.
-    if st.button("🔮 Calcular la probabilidad de mi cuadro", type="primary"):
-        gpp = group_probs()
-        gp = 1.0
-        thirds_groups = set(third_group)
-        for L in mc.LETTERS:
-            d = gpp[L]; teams = d["teams"]
-            p1, p2 = teams.index(first[L]), teams.index(second[L])
-            if L in thirds_groups:
-                p3 = teams.index(third_group[L])
-                gp *= float(d["triple"][p1 * 16 + p2 * 4 + p3])
-            else:
-                gp *= float(d["pair"][p1 * 4 + p2])
-        kp = 1.0
-        for m, (a, b) in matches.items():
-            w = winners[m]; loser = b if w == a else a
-            kp *= mc.win_probability(wpi[w], wpi[loser])
-        total = gp * kp
-
-        if total <= 0:
-            st.error("Tu combinación es tan improbable que ni en 20.000 simulaciones aparece. "
-                     "¡Eso sí que sería una sorpresa histórica!")
-            return
-        one_in = 1.0 / total
-        st.metric("Probabilidad de que tu cuadro entero acierte",
-                  f"{total*100:.2g}%", f"≈ {_format_one_in(one_in)}")
-        st.caption("Combina la probabilidad de cada grupo (simulando cada grupo por separado) "
-                   "con la de cada cruce de la eliminatoria. La colocación exacta de los "
-                   "terceros es una aproximación.")
-        render_share(
-            f"He predicho a {champ} campeón del Mundial 2026. Mi cuadro tiene "
-            f"{_format_one_in(one_in)} de acertar entero. ¿Mejoras mi marca? "
-            f"World Cup Predictor Pro.", key="share_bracket")
+    # Compartir el pronóstico (sin probabilidad).
+    render_share(
+        f"Mi pronóstico para el Mundial 2026: campeón {champ}. Hecho con World Cup "
+        f"Predictor Pro. ¿Cuál es el tuyo?", key="share_bracket")
 
 
 # --- Detector de sorpresas (⚡) ---------------------------------------------
