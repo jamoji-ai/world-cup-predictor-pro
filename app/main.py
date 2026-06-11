@@ -42,9 +42,11 @@ def load_data() -> pd.DataFrame | None:
     except Exception:  # noqa: BLE001
         return None
     if MASTER_CSV.exists():
-        extra = pd.read_csv(MASTER_CSV)[
-            ["canonical_name", "confederation", "top_player", "market_value_total"]
-        ]
+        extra = pd.read_csv(MASTER_CSV)[[
+            "canonical_name", "confederation", "top_player", "top_player_value",
+            "market_value_total", "avg_age", "form_matches", "form_points", "form_max",
+            "elo_n", "fifa_n", "form_n", "value_n", "value_avg_n", "top5_n", "age_n", "wc_exp_n",
+        ]]
         sim = sim.merge(extra, on="canonical_name", how="left")
     # "Fuerza del equipo" 0-100 a partir del WPI (0-1), para lectura humana.
     sim["fuerza"] = (sim["wpi"] * 100).round().astype(int)
@@ -89,16 +91,16 @@ def pct(x: float) -> str:
 
 # --- Sidebar -----------------------------------------------------------------
 
-def render_sidebar(using_real: bool) -> None:
+def render_sidebar(using_real: bool) -> str:
     with st.sidebar:
         st.markdown("## 🏆 WC Predictor Pro")
         st.caption("Quién ganará el Mundial 2026, según los datos")
         st.divider()
-        st.radio(
+        section = st.radio(
             "Secciones",
             ["🏠 Favoritos", "🔎 Selección", "🗂️ Cuadro", "🎮 Simulador", "⚡ Sorpresas"],
             index=0,
-            help="Día 4: la sección de Favoritos ya usa datos reales. El resto llega días 5–7.",
+            help="Favoritos, Selección y Cuadro ya funcionan. Simulador y Sorpresas: Día 6.",
         )
         st.divider()
         if using_real:
@@ -108,6 +110,7 @@ def render_sidebar(using_real: bool) -> None:
             )
         else:
             st.caption("⚠️ Datos de ejemplo (aún no se ha generado la simulación).")
+    return section
 
 
 # --- Pantalla principal: Favoritos ------------------------------------------
@@ -219,6 +222,153 @@ def render_journey(df: pd.DataFrame) -> None:
     st.plotly_chart(fig, use_container_width=True)
 
 
+# --- Vista de selección ------------------------------------------------------
+
+RADAR_LABELS = [
+    ("elo_n", "Nivel histórico"),
+    ("fifa_n", "Ranking FIFA"),
+    ("form_n", "Forma reciente"),
+    ("value_n", "Valor de la plantilla"),
+    ("value_avg_n", "Calidad de estrellas"),
+    ("top5_n", "Juegan en grandes ligas"),
+    ("age_n", "Edad ideal"),
+    ("wc_exp_n", "Experiencia mundialista"),
+]
+
+
+def render_team_view(df: pd.DataFrame) -> None:
+    st.title("Ficha de selección")
+    names = df.sort_values("canonical_name")["canonical_name"].tolist()
+    default = int(df.index[df["canonical_name"] == df.iloc[0]["canonical_name"]][0])
+    team = st.selectbox("Elige una selección", names,
+                        index=names.index(df.iloc[0]["canonical_name"]))
+    row = df[df["canonical_name"] == team].iloc[0]
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Fuerza del equipo", f"{int(row['fuerza'])}/100", f"Grupo {row['group']}")
+    c2.metric("Gana el Mundial", pct(row["prob_campeon"]))
+    c3.metric("Plantilla", f"€{row['market_value_total']/1e6:.0f}M"
+              if pd.notna(row["market_value_total"]) else "—")
+    c4.metric("Jugador estrella", row["top_player"] if pd.notna(row["top_player"]) else "—",
+              f"€{row['top_player_value']/1e6:.0f}M" if pd.notna(row.get("top_player_value")) else None)
+
+    col_a, col_b = st.columns([1, 1])
+    with col_a:
+        st.subheader("Perfil del equipo")
+        st.caption("Cada eje va de 0 a 100. Cuanto más grande el área, más completo el equipo.")
+        vals = [float(row[k]) * 100 for k, _ in RADAR_LABELS]
+        labels = [lbl for _, lbl in RADAR_LABELS]
+        fig = px.line_polar(
+            r=vals + [vals[0]], theta=labels + [labels[0]], line_close=True,
+        )
+        fig.update_traces(fill="toself")
+        fig.update_layout(margin=dict(l=40, r=40, t=20, b=20), height=420,
+                          polar=dict(radialaxis=dict(range=[0, 100], showticklabels=False)))
+        st.plotly_chart(fig, use_container_width=True)
+    with col_b:
+        st.subheader("¿Hasta dónde llega?")
+        st.caption("De cada 100 Mundiales simulados, cuántas veces alcanza cada ronda.")
+        stages = [("Supera la fase de grupos", "prob_avanza_grupos"), ("Octavos", "prob_octavos"),
+                  ("Cuartos", "prob_cuartos"), ("Semifinales", "prob_semis"),
+                  ("Final", "prob_final"), ("Campeón", "prob_campeon")]
+        bars = pd.DataFrame({"Ronda": [s[0] for s in stages],
+                             "%": [row[s[1]] * 100 for s in stages]})
+        fig2 = px.bar(bars, x="%", y="Ronda", orientation="h", text="%",
+                      category_orders={"Ronda": [s[0] for s in stages][::-1]})
+        fig2.update_traces(texttemplate="%{text:.0f}%", textposition="outside",
+                           marker_color="#1f9e89")
+        fig2.update_layout(margin=dict(l=10, r=30, t=10, b=10), height=420,
+                           xaxis_range=[0, 100], xaxis_title="", yaxis_title="")
+        st.plotly_chart(fig2, use_container_width=True)
+
+
+# --- Cuadro (bracket más probable) ------------------------------------------
+
+@st.cache_data(ttl=1800)
+def predicted_bracket(df: pd.DataFrame):
+    """Cuadro más probable: dentro de cada grupo ganan los de mayor fuerza, y en
+    cada cruce avanza el favorito. Usa el cuadro OFICIAL del Mundial 2026."""
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import montecarlo as mc
+
+    wpi = dict(zip(df["canonical_name"], df["wpi"]))
+    grp = {ltr: sorted([t for t in members], key=lambda t: -wpi.get(t, 0))
+           for ltr, members in mc.OFFICIAL_GROUPS.items()}
+    winners = {l: grp[l][0] for l in mc.LETTERS}
+    runners = {l: grp[l][1] for l in mc.LETTERS}
+    thirds = {l: grp[l][2] for l in mc.LETTERS}
+    best = sorted(mc.LETTERS, key=lambda l: -wpi[thirds[l]])[:8]
+    mask = sum(1 << mc.L2I[l] for l in best)
+    slot_groups = mc.THIRDS_TABLE[mask]
+    slot_team = {slot: thirds[mc.LETTERS[slot_groups[k]]] for k, slot in enumerate(mc.THIRD_SLOTS)}
+
+    def part(spec):
+        kind, ref = spec
+        return winners[ref] if kind == "W" else runners[ref] if kind == "R" else slot_team[ref]
+
+    matches, win = {}, {}
+    for m, (a, b) in mc.R32.items():
+        ta, tb = part(a), part(b)
+        matches[m] = (ta, tb); win[m] = ta if wpi[ta] >= wpi[tb] else tb
+    for tree in (mc.R16, mc.QF, mc.SF, mc.FINAL):
+        for m, (x, y) in tree.items():
+            ta, tb = win[x], win[y]
+            matches[m] = (ta, tb); win[m] = ta if wpi[ta] >= wpi[tb] else tb
+    return matches, win
+
+
+def render_bracket(df: pd.DataFrame) -> None:
+    st.title("El cuadro más probable")
+    meta = load_meta()
+    if meta and int(meta["n_played_groups"]) == 0:
+        st.caption(
+            "Aún no se ha jugado ningún partido, así que este es el cuadro **más "
+            "probable** hoy: en cada grupo pasan los dos equipos más fuertes y en "
+            "cada cruce gana el favorito. Se irá concretando con los resultados reales."
+        )
+    else:
+        st.caption("Cuadro más probable según la fuerza de cada equipo y el sorteo oficial.")
+    matches, win = predicted_bracket(df)
+
+    champ = win[104]
+    fin = matches[104]
+    st.success(f"🏆 **Campeón más probable: {champ}**  ·  Final: {fin[0]} vs {fin[1]}")
+
+    rounds = [
+        ("Octavos de final", [89, 90, 91, 92, 93, 94, 95, 96]),
+        ("Cuartos de final", [97, 98, 99, 100]),
+        ("Semifinales", [101, 102]),
+        ("Final", [104]),
+    ]
+    st.subheader("Camino hacia el título (eliminatoria)")
+    cols = st.columns(len(rounds))
+    for col, (title, ms) in zip(cols, rounds):
+        with col:
+            st.markdown(f"**{title}**")
+            for m in ms:
+                a, b = matches[m]
+                w = win[m]
+                a_s = f"**{a}**" if w == a else a
+                b_s = f"**{b}**" if w == b else b
+                st.markdown(f"<div style='font-size:0.85em;margin-bottom:8px'>"
+                            f"{a_s}<br>{b_s}</div>", unsafe_allow_html=True)
+
+    with st.expander("Ver los 16 cruces de la primera eliminatoria (dieciseisavos)"):
+        rows = []
+        for m in range(73, 89):
+            a, b = matches[m]
+            rows.append({"Cruce": f"M{m}", "Equipo A": a, "Equipo B": b,
+                         "Pasa (favorito)": win[m]})
+        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+
+
+def render_coming_soon(section: str) -> None:
+    st.title(section.split(" ", 1)[1] if " " in section else section)
+    st.info("🚧 Esta sección llega en el **Día 6**: simulador manual de partidos, "
+            "'¿qué necesita mi selección?', detector de sorpresas y evolución temporal.")
+
+
 # --- "Cómo funciona" (técnico, separado de las cifras del usuario) ----------
 
 def render_how_it_works() -> None:
@@ -278,23 +428,31 @@ def render_pipeline_status(df: pd.DataFrame | None) -> None:
 
 def main() -> None:
     df = load_data()
-    render_sidebar(using_real=df is not None)
+    section = render_sidebar(using_real=df is not None)
     if df is None:
         render_sample(get_sample_ranking())
         st.divider()
         render_pipeline_status(df)
         return
 
-    render_hero(df)
-    render_live_status(load_meta())
-    st.divider()
-    col_a, col_b = st.columns([3, 2])
-    with col_a:
-        render_ranking(df)
-    with col_b:
-        render_bar(df)
-    st.divider()
-    render_journey(df)
+    if section.startswith("🔎"):
+        render_team_view(df)
+    elif section.startswith("🗂️"):
+        render_bracket(df)
+    elif section.startswith(("🎮", "⚡")):
+        render_coming_soon(section)
+    else:  # Favoritos
+        render_hero(df)
+        render_live_status(load_meta())
+        st.divider()
+        col_a, col_b = st.columns([3, 2])
+        with col_a:
+            render_ranking(df)
+        with col_b:
+            render_bar(df)
+        st.divider()
+        render_journey(df)
+
     st.divider()
     render_how_it_works()
     render_pipeline_status(df)
