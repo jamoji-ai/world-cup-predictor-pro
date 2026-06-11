@@ -105,7 +105,11 @@ def main() -> int:
             return 1
 
     _log(f"--- Simulación Monte Carlo oficial ({args.sims} sims) ---")
-    res = subprocess.run([sys.executable, str(SCRIPTS / "wc_engine.py"), "--sims", str(args.sims)])
+    # Semilla fija: con los mismos datos de entrada el resultado es idéntico, así
+    # la Action programada NO commitea por ruido de simulación, solo si cambian
+    # los datos reales (resultados, Elo, ranking FIFA).
+    res = subprocess.run([sys.executable, str(SCRIPTS / "wc_engine.py"),
+                          "--sims", str(args.sims), "--seed", "2026"])
     if res.returncode != 0:
         _log("ERROR CRÍTICO: la simulación falló. Abortando.")
         return 1
