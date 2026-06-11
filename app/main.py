@@ -333,34 +333,66 @@ def render_bracket(df: pd.DataFrame) -> None:
 
     champ = win[104]
     fin = matches[104]
-    st.success(f"🏆 **Campeón más probable: {champ}**  ·  Final: {fin[0]} vs {fin[1]}")
+    st.success(f"🏆 Campeón más probable: **{champ}**  ·  Final: {fin[0]} vs {fin[1]}")
+    st.caption("Los equipos en **verde** son los que avanzan. En móvil, desliza el cuadro "
+               "en horizontal.")
+    render_bracket_boxes(matches, win)
 
-    rounds = [
-        ("Octavos de final", [89, 90, 91, 92, 93, 94, 95, 96]),
-        ("Cuartos de final", [97, 98, 99, 100]),
-        ("Semifinales", [101, 102]),
-        ("Final", [104]),
-    ]
-    st.subheader("Camino hacia el título (eliminatoria)")
-    cols = st.columns(len(rounds))
-    for col, (title, ms) in zip(cols, rounds):
-        with col:
-            st.markdown(f"**{title}**")
-            for m in ms:
-                a, b = matches[m]
-                w = win[m]
-                a_s = f"**{a}**" if w == a else a
-                b_s = f"**{b}**" if w == b else b
-                st.markdown(f"<div style='font-size:0.85em;margin-bottom:8px'>"
-                            f"{a_s}<br>{b_s}</div>", unsafe_allow_html=True)
 
-    with st.expander("Ver los 16 cruces de la primera eliminatoria (dieciseisavos)"):
-        rows = []
-        for m in range(73, 89):
-            a, b = matches[m]
-            rows.append({"Cruce": f"M{m}", "Equipo A": a, "Equipo B": b,
-                         "Pasa (favorito)": win[m]})
-        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+# Orden de los partidos por columna siguiendo el árbol real (para que cada cruce
+# quede alineado con el de la ronda siguiente que alimenta).
+_BRACKET_COLUMNS = [
+    ("Dieciseisavos", [74, 77, 73, 75, 83, 84, 81, 82, 76, 78, 79, 80, 86, 88, 85, 87]),
+    ("Octavos", [89, 90, 93, 94, 91, 92, 95, 96]),
+    ("Cuartos", [97, 98, 99, 100]),
+    ("Semifinales", [101, 102]),
+    ("Final", [104]),
+]
+
+
+def render_bracket_boxes(matches: dict, win: dict) -> None:
+    """Dibuja el cuadro con cajitas de enfrentamiento (HTML/CSS en un iframe)."""
+    import streamlit.components.v1 as components
+
+    css = """
+    <style>
+      .wrap { overflow-x:auto; padding:4px 2px 12px; }
+      .bracket { display:flex; gap:16px; width:max-content;
+                 font-family:'Source Sans Pro',system-ui,sans-serif; }
+      .round { display:flex; flex-direction:column; justify-content:space-around;
+               min-width:150px; }
+      .round h4 { margin:0 0 8px; font-size:0.8rem; color:#6b7280;
+                  text-transform:uppercase; letter-spacing:.04em; text-align:center; }
+      .match { border:1px solid #e1e4e8; border-radius:8px; overflow:hidden;
+               margin:5px 0; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+      .team { padding:6px 10px; font-size:0.82rem; color:#374151;
+              border-bottom:1px solid #f0f1f3; white-space:nowrap; }
+      .team:last-child { border-bottom:none; }
+      .team.win { font-weight:700; color:#0b6b57; background:#e6f5ef; }
+      .round.champ { justify-content:center; }
+      .round.champ .match { border-color:#0b6b57; }
+      .round.champ .team { font-size:0.9rem; }
+    </style>
+    """
+    parts = ["<div class='wrap'><div class='bracket'>"]
+    for title, ms in _BRACKET_COLUMNS:
+        parts.append(f"<div class='round'><h4>{title}</h4>")
+        for m in ms:
+            a, b = matches[m]; w = win[m]
+            parts.append(
+                f"<div class='match'>"
+                f"<div class='team {'win' if w == a else ''}'>{a}</div>"
+                f"<div class='team {'win' if w == b else ''}'>{b}</div>"
+                f"</div>"
+            )
+        parts.append("</div>")
+    # Columna del campeón.
+    parts.append(
+        f"<div class='round champ'><h4>Campeón</h4>"
+        f"<div class='match'><div class='team win'>🏆 {win[104]}</div></div></div>"
+    )
+    parts.append("</div></div>")
+    components.html(css + "".join(parts), height=1220, scrolling=True)
 
 
 def render_coming_soon(section: str) -> None:
