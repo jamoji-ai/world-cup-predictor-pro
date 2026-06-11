@@ -41,6 +41,11 @@ OUTPUT_PATH = ROOT / "data" / "processed" / "teams_master.csv"
 AGE_OPTIMAL = 26.5
 AGE_SPREAD = 4.0
 
+# Experiencia mundialista: rendimiento en fases finales de Mundiales, con más
+# peso a las ediciones recientes (vida media ~16 años = 4 mundiales).
+WC_REFERENCE_YEAR = 2026
+WC_HALFLIFE_YEARS = 16.0
+
 DEFAULT_FORM_WINDOW = 20
 DEFAULT_FRIENDLY_WEIGHT = 0.5  # amistosos pesan la mitad (alineaciones B pre-Mundial)
 
@@ -104,9 +109,41 @@ def compute_form(
     return form
 
 
-# --- Edad (placeholder Día 2) ------------------------------------------------
-# La edad media real llega del scraping de Transfermarkt (Día 3). Aquí no se
-# calcula todavía; la columna se añadirá entonces.
+# --- Experiencia mundialista -------------------------------------------------
+
+def compute_wc_experience(matches: pd.DataFrame, teams: list[str]) -> pd.DataFrame:
+    """Rendimiento histórico en fases finales de Mundiales, ponderado por recencia.
+
+    Para cada partido de Mundial JUGADO, se suman puntos (3/1/0) multiplicados por
+    un peso que decae con los años (las ediciones recientes pesan más). Devuelve
+    'wc_exp_raw' por selección; la normalización 0-1 se hace en build().
+    """
+    wc = matches[matches["tournament"].astype(str).str.strip() == "FIFA World Cup"].copy()
+    wc = wc[wc["home_score"].notna() & wc["away_score"].notna()]
+    wc["year"] = pd.to_datetime(wc["date"], errors="coerce").dt.year
+    wc = wc.dropna(subset=["year"])
+    wc = wc[wc["year"] < WC_REFERENCE_YEAR]  # excluir el Mundial actual (sin jugar)
+    wc["home_score"] = wc["home_score"].astype(int)
+    wc["away_score"] = wc["away_score"].astype(int)
+    wc["weight"] = np.exp(-(WC_REFERENCE_YEAR - wc["year"]) / WC_HALFLIFE_YEARS)
+
+    scores = {t: 0.0 for t in teams}
+    teamset = set(teams)
+    for _, r in wc.iterrows():
+        h, a = r["home_team"], r["away_team"]
+        if h not in teamset and a not in teamset:
+            continue
+        if r["home_score"] > r["away_score"]:
+            ph, pa = 3, 0
+        elif r["home_score"] < r["away_score"]:
+            ph, pa = 0, 3
+        else:
+            ph, pa = 1, 1
+        if h in teamset:
+            scores[h] += ph * r["weight"]
+        if a in teamset:
+            scores[a] += pa * r["weight"]
+    return pd.DataFrame({"canonical_name": list(scores), "wc_exp_raw": list(scores.values())})
 
 
 def build(form_window: int, friendly_weight: float) -> pd.DataFrame:
@@ -139,6 +176,11 @@ def build(form_window: int, friendly_weight: float) -> pd.DataFrame:
         f"Media partidos usados: {df['form_matches'].mean():.1f}."
     )
 
+    # --- Experiencia mundialista (recencia-ponderada) ---
+    wc_exp = compute_wc_experience(matches, df["canonical_name"].tolist())
+    df = df.merge(wc_exp, on="canonical_name", how="left")
+    df["wc_exp_raw"] = df["wc_exp_raw"].fillna(0.0)
+
     # --- Variables de MERCADO (Transfermarkt, Día 3) ---
     market_cols = ["market_value_total", "market_value_avg", "avg_age",
                    "top_player", "top_player_value", "pct_top5_leagues"]
@@ -162,6 +204,7 @@ def build(form_window: int, friendly_weight: float) -> pd.DataFrame:
     df["value_avg_n"] = _minmax(df["market_value_avg"])
     df["top5_n"] = df["pct_top5_leagues"].fillna(0.0)  # ya es 0-1
     df["age_n"] = age_score(df["avg_age"])
+    df["wc_exp_n"] = _minmax(df["wc_exp_raw"])
 
     df = df.sort_values("elo_rating", ascending=False).reset_index(drop=True)
 
@@ -170,8 +213,8 @@ def build(form_window: int, friendly_weight: float) -> pd.DataFrame:
         "elo_rating", "fifa_rank", "fifa_points",
         "form_points", "form_max", "form_matches",
         "market_value_total", "market_value_avg", "avg_age",
-        "top_player", "top_player_value", "pct_top5_leagues",
-        "elo_n", "fifa_n", "form_n", "value_n", "value_avg_n", "top5_n", "age_n",
+        "top_player", "top_player_value", "pct_top5_leagues", "wc_exp_raw",
+        "elo_n", "fifa_n", "form_n", "value_n", "value_avg_n", "top5_n", "age_n", "wc_exp_n",
     ]
     return df[cols]
 

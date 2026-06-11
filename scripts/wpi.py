@@ -1,9 +1,11 @@
 """wpi.py — World Predictor Index y funciones de probabilidad de partido.
 
-Implementa EXACTAMENTE la fórmula y pesos del doc 03_MODELO_WPI_MONTECARLO.md:
+Fórmula del WPI (pesos ajustados por el usuario sobre el doc 03, + variable
+nueva "experiencia mundialista"):
 
-    WPI = 0.30*elo_n + 0.20*fifa_n + 0.15*form_n
-        + 0.15*value_n + 0.05*value_avg_n + 0.10*top5_n + 0.05*age_n
+    WPI = 0.24*elo_n + 0.19*fifa_n + 0.17*form_n
+        + 0.13*value_n + 0.05*value_avg_n + 0.10*top5_n + 0.05*age_n
+        + 0.07*wc_exp_n
 
 Todas las variables vienen normalizadas 0-1 en processed/teams_master.csv
 (generado por build_teams_master.py). Este módulo:
@@ -26,15 +28,16 @@ ROOT = Path(__file__).resolve().parents[1]
 MASTER_CSV = ROOT / "data" / "processed" / "teams_master.csv"
 OUTPUT_PATH = ROOT / "data" / "processed" / "wpi_scores.csv"
 
-# Pesos del WPI (doc 03). Suman 1.0.
+# Pesos del WPI (ajustados por el usuario sobre el doc 03). Suman 1.0.
 WEIGHTS = {
-    "elo_n": 0.30,
-    "fifa_n": 0.20,
-    "form_n": 0.15,
-    "value_n": 0.15,
+    "elo_n": 0.24,
+    "fifa_n": 0.19,
+    "form_n": 0.17,
+    "value_n": 0.13,
     "value_avg_n": 0.05,
     "top5_n": 0.10,
     "age_n": 0.05,
+    "wc_exp_n": 0.07,
 }
 assert abs(sum(WEIGHTS.values()) - 1.0) < 1e-9, "Los pesos del WPI deben sumar 1.0"
 
@@ -58,15 +61,16 @@ def compute_wpi(df: pd.DataFrame) -> pd.Series:
     return wpi
 
 
-# --- De WPI a probabilidad de partido (doc 03) -------------------------------
+# --- De WPI a probabilidad de partido ----------------------------------------
+# Escala de sensibilidad calibrada (recalibración sobre el doc 03): con WPI en
+# 0-1, controla cuánto destacan los favoritos. 0.55 da probabilidades de campeón
+# realistas (favoritos ~16-22%), validado contra el consenso de mercado.
+WIN_PROB_SCALE = 0.55
 
-def win_probability(wpi_a: float, wpi_b: float, k: float = 10.0) -> float:
-    """Probabilidad logística (estilo Elo) de que A gane a B (sin empate).
 
-    Usada para resolver eliminatorias empatadas (prórroga/penaltis).
-    """
-    diff = (wpi_a - wpi_b) * 100.0
-    return 1.0 / (1.0 + 10.0 ** (-diff / (k * 40.0)))
+def win_probability(wpi_a: float, wpi_b: float, scale: float = WIN_PROB_SCALE) -> float:
+    """Probabilidad logística de que A gane a B (resultado decisivo, sin empate)."""
+    return 1.0 / (1.0 + 10.0 ** (-(wpi_a - wpi_b) / scale))
 
 
 def expected_goals(wpi_a: float, wpi_b: float, base_goals: float = 1.3) -> tuple[float, float]:
@@ -87,7 +91,7 @@ def main() -> int:
     df["wpi_rank"] = range(1, len(df) + 1)
 
     cols = ["wpi_rank", "canonical_name", "confederation", "wpi",
-            "elo_n", "fifa_n", "form_n", "value_n", "value_avg_n", "top5_n", "age_n"]
+            "elo_n", "fifa_n", "form_n", "value_n", "value_avg_n", "top5_n", "age_n", "wc_exp_n"]
     df[cols].to_csv(OUTPUT_PATH, index=False, encoding="utf-8")
     _log(f"Guardado {len(df)} WPI en {OUTPUT_PATH}")
     _log("Top 12 por WPI:")
