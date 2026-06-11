@@ -36,7 +36,7 @@ MATCHES_CSV = ROOT / "data" / "raw" / "matches_history.csv"
 OUTPUT_PATH = ROOT / "data" / "processed" / "teams_master.csv"
 
 DEFAULT_FORM_WINDOW = 20
-DEFAULT_FRIENDLY_WEIGHT = 1.0
+DEFAULT_FRIENDLY_WEIGHT = 0.5  # amistosos pesan la mitad (alineaciones B pre-Mundial)
 
 
 def _log(msg: str) -> None:
