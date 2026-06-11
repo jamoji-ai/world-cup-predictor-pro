@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -37,6 +37,7 @@ WPI_CSV = ROOT / "data" / "processed" / "wpi_scores.csv"
 MASTER_CSV = ROOT / "data" / "processed" / "teams_master.csv"
 MATCHES_CSV = ROOT / "data" / "raw" / "matches_history.csv"
 OUTPUT_PATH = ROOT / "data" / "results" / "simulation_results.csv"
+META_PATH = ROOT / "data" / "results" / "sim_meta.csv"
 
 BASE_GOALS = 1.3        # goles medios por equipo (doc 03)
 HOME_GOALS_BONUS = 0.35  # plus de goles esperados al anfitrión en casa
@@ -89,13 +90,26 @@ def load_tournament() -> dict:
     if len(groups) != 12 or any(len(g) != 4 for g in groups):
         raise ValueError(f"Estructura de grupos inesperada: {[len(g) for g in groups]}")
 
-    # Fixtures de grupos: (home_idx, away_idx, home_advantage_bool).
+    # Fixtures de grupos: (home_idx, away_idx, home_adv, score_h, score_a).
+    # score_* es None si el partido aún no se ha jugado (se simulará); si tiene
+    # marcador real, se usa como DADO (recálculo en tiempo real, Día 5).
     fixtures = []
+    n_played = 0
     for _, r in wc.iterrows():
         home_adv = not bool(r["neutral"])  # neutral=False -> anfitrión en casa
-        fixtures.append((idx[r["home_team"]], idx[r["away_team"]], home_adv))
+        sh, sa = r["home_score"], r["away_score"]
+        played = pd.notna(sh) and pd.notna(sa)
+        if played:
+            n_played += 1
+        fixtures.append((
+            idx[r["home_team"]], idx[r["away_team"]], home_adv,
+            int(sh) if played else None, int(sa) if played else None,
+        ))
 
-    return {"teams": teams, "wpi": wpi, "groups": groups, "fixtures": fixtures}
+    return {
+        "teams": teams, "wpi": wpi, "groups": groups, "fixtures": fixtures,
+        "n_played_groups": n_played, "n_groups_matches": len(fixtures),
+    }
 
 
 # --- Simulación de la fase de grupos -----------------------------------------
@@ -106,18 +120,36 @@ def _standings_key(points, gf, ga):
 
 
 def simulate_groups(t: dict, n: int, rng: np.random.Generator):
-    """Simula los 72 partidos de grupos. Devuelve la clave de clasificación (n, 48)."""
+    """Simula los partidos de grupos PENDIENTES; los jugados entran como dados.
+
+    Devuelve la clave de clasificación (n, 48). Los partidos con marcador real
+    aportan puntos/goles fijos (idénticos en todas las simulaciones); solo los no
+    jugados se sortean con Poisson.
+    """
     n_teams = len(t["teams"])
     wpi = t["wpi"]
-    points = np.zeros((n, n_teams)); gf = np.zeros((n, n_teams)); ga = np.zeros((n, n_teams))
+    # Aportación fija de los partidos ya jugados (vector por selección).
+    base_points = np.zeros(n_teams); base_gf = np.zeros(n_teams); base_ga = np.zeros(n_teams)
+    pending = []
+    for ih, ia, home_adv, sh, sa in t["fixtures"]:
+        if sh is None:
+            pending.append((ih, ia, home_adv))
+            continue
+        base_points[ih] += 3 if sh > sa else (1 if sh == sa else 0)
+        base_points[ia] += 3 if sa > sh else (1 if sh == sa else 0)
+        base_gf[ih] += sh; base_ga[ih] += sa
+        base_gf[ia] += sa; base_ga[ia] += sh
 
-    for ih, ia, home_adv in t["fixtures"]:
+    points = np.tile(base_points, (n, 1))
+    gf = np.tile(base_gf, (n, 1))
+    ga = np.tile(base_ga, (n, 1))
+
+    for ih, ia, home_adv in pending:
         lam_h, lam_a = wpi_mod.expected_goals(wpi[ih], wpi[ia], BASE_GOALS)
         if home_adv:
             lam_h += HOME_GOALS_BONUS
         gh = rng.poisson(lam_h, n)
         gaway = rng.poisson(lam_a, n)
-        # Puntos.
         points[:, ih] += np.where(gh > gaway, 3, np.where(gh == gaway, 1, 0))
         points[:, ia] += np.where(gaway > gh, 3, np.where(gh == gaway, 1, 0))
         gf[:, ih] += gh; ga[:, ih] += gaway
@@ -231,6 +263,9 @@ def run_simulation(n: int = 10000, seed: int | None = None) -> pd.DataFrame:
         })
     df = pd.DataFrame(rows).sort_values("prob_campeon", ascending=False).reset_index(drop=True)
     df.insert(0, "rank", range(1, len(df) + 1))
+    df.attrs["n_played_groups"] = t["n_played_groups"]
+    df.attrs["n_groups_matches"] = t["n_groups_matches"]
+    df.attrs["n_sims"] = n
     return df
 
 
@@ -248,6 +283,12 @@ def main() -> int:
     df = run_simulation(args.sims, args.seed)
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(OUTPUT_PATH, index=False, encoding="utf-8")
+    pd.DataFrame([{
+        "generated": date.today().isoformat(),
+        "n_sims": df.attrs["n_sims"],
+        "n_played_groups": df.attrs["n_played_groups"],
+        "n_groups_matches": df.attrs["n_groups_matches"],
+    }]).to_csv(META_PATH, index=False, encoding="utf-8")
     _log(f"Guardado en {OUTPUT_PATH}")
     _log("Top 12 candidatos al título:")
     for _, r in df.head(12).iterrows():

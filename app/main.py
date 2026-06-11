@@ -21,6 +21,7 @@ from sample_data import get_sample_ranking
 # --- Rutas -------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[1]
 SIM_CSV = ROOT / "data" / "results" / "simulation_results.csv"
+META_CSV = ROOT / "data" / "results" / "sim_meta.csv"
 MASTER_CSV = ROOT / "data" / "processed" / "teams_master.csv"
 
 st.set_page_config(
@@ -48,6 +49,32 @@ def load_data() -> pd.DataFrame | None:
     # "Fuerza del equipo" 0-100 a partir del WPI (0-1), para lectura humana.
     sim["fuerza"] = (sim["wpi"] * 100).round().astype(int)
     return sim
+
+
+@st.cache_data(ttl=1800)
+def load_meta() -> dict | None:
+    if not META_CSV.exists():
+        return None
+    try:
+        return pd.read_csv(META_CSV).iloc[0].to_dict()
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def render_live_status(meta: dict | None) -> None:
+    if not meta:
+        return
+    played = int(meta["n_played_groups"]); total = int(meta["n_groups_matches"])
+    sims = int(meta["n_sims"])
+    if played == 0:
+        msg = (f"🔵 **Antes del inicio** — aún no se ha jugado ningún partido "
+               f"(0 de {total} de la fase de grupos). Probabilidades de partida.")
+    elif played < total:
+        msg = (f"🟢 **Mundial en marcha** — {played} de {total} partidos de grupos "
+               f"jugados. Las probabilidades ya incluyen esos resultados reales.")
+    else:
+        msg = "🟢 **Fase de grupos completada** — quedan las eliminatorias."
+    st.info(f"{msg}  ·  _{sims:,} simulaciones_".replace(",", "."))
 
 
 def pct(x: float) -> str:
@@ -258,6 +285,7 @@ def main() -> None:
         return
 
     render_hero(df)
+    render_live_status(load_meta())
     st.divider()
     col_a, col_b = st.columns([3, 2])
     with col_a:
