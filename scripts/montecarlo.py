@@ -226,7 +226,7 @@ def match_outcome_probs(wpi_a: float, wpi_b: float, home_adv_a: bool = False,
                 pd_ += p
             else:
                 pb += p
-    return pa, pd_, pb
+    return float(pa), float(pd_), float(pb)
 
 
 def _standings_key(points, gf, ga):

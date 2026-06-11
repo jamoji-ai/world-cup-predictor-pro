@@ -27,7 +27,7 @@ META_CSV = ROOT / "data" / "results" / "sim_meta.csv"
 HISTORY_CSV = ROOT / "data" / "results" / "history_log.csv"
 MASTER_CSV = ROOT / "data" / "processed" / "teams_master.csv"
 
-SCENARIO_SIMS = 10000  # simulaciones para los escenarios interactivos (rápido)
+SCENARIO_SIMS = 6000   # simulaciones para escenarios interactivos (ligero para Cloud free)
 SCENARIO_SEED = 7      # semilla fija: aísla el efecto del resultado fijado
 
 st.set_page_config(
@@ -565,7 +565,7 @@ def render_upsets(df: pd.DataFrame) -> None:
             f"**{r['underdog']}** puede ganar a **{r['fav']}**  ·  "
             f"`{r['p']*100:.0f}%`  _(Grupo {r['group']})_"
         )
-        st.progress(min(1.0, r["p"]))
+        st.progress(float(min(1.0, max(0.0, r["p"]))))
 
 
 # --- "Cómo funciona" (técnico, separado de las cifras del usuario) ----------
@@ -696,6 +696,17 @@ def render_pipeline_status(df: pd.DataFrame | None) -> None:
         st.caption("Regenerar todo:\n\n```bash\npython scripts/update_all.py\n```")
 
 
+def _safe(fn, df) -> None:
+    """Ejecuta una pantalla y, si falla, muestra el error sin romper la app."""
+    try:
+        fn(df)
+    except Exception as err:  # noqa: BLE001
+        import traceback
+        st.error(f"Ups, esta sección ha fallado: {type(err).__name__}: {err}")
+        with st.expander("Detalle técnico"):
+            st.code("".join(traceback.format_exc()))
+
+
 def main() -> None:
     df = load_data()
     section = render_sidebar(using_real=df is not None)
@@ -710,9 +721,9 @@ def main() -> None:
     elif section.startswith("🗂️"):
         render_bracket(df)
     elif section.startswith("🎮"):
-        render_simulator(df)
+        _safe(render_simulator, df)
     elif section.startswith("⚡"):
-        render_upsets(df)
+        _safe(render_upsets, df)
     else:  # Favoritos
         render_hero(df)
         render_live_status(load_meta())
