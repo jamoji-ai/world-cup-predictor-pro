@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# OS / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Datos crudos voluminosos o temporales (los CSV pequeños SÍ se versionan)
+data/raw/*.html
+data/raw/*.tmp
+*.log
