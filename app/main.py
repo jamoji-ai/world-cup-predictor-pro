@@ -95,6 +95,33 @@ def pct(x: float) -> str:
     return "<1%" if v > 0 else "0%"
 
 
+# --- Detección de móvil (ancho real del navegador) ---------------------------
+MOBILE_BREAKPOINT = 768
+
+
+def detect_mobile() -> None:
+    """Mide el ancho del navegador y guarda en session_state si es móvil.
+
+    Usa streamlit-js-eval; si no estuviera disponible, degrada a escritorio sin
+    romper la app. La primera ejecución devuelve None (el JS aún no respondió),
+    por eso conservamos el último ancho conocido en session_state.
+    """
+    width = None
+    try:
+        from streamlit_js_eval import streamlit_js_eval
+        width = streamlit_js_eval(js_expressions="window.innerWidth", key="vw_detect")
+    except Exception:  # noqa: BLE001
+        width = None
+    if width:
+        st.session_state["_vw"] = int(width)
+    vw = st.session_state.get("_vw")
+    st.session_state["_mobile"] = bool(vw) and vw < MOBILE_BREAKPOINT
+
+
+def is_mobile() -> bool:
+    return bool(st.session_state.get("_mobile", False))
+
+
 # --- Sidebar -----------------------------------------------------------------
 
 def render_sidebar(using_real: bool) -> str:
@@ -167,8 +194,11 @@ def render_ranking(df: pd.DataFrame) -> None:
     ]:
         table[col] = (table[src] * 100)
     table = table.rename(columns={"canonical_name": "Selección", "fuerza": "Fuerza del equipo"})
-    cols = ["Pos", "Selección", "Grupo", "Gana el Mundial", "Llega a la final",
-            "Llega a semifinales", "Supera la fase de grupos", "Fuerza del equipo"]
+    if is_mobile():
+        cols = ["Pos", "Selección", "Gana el Mundial", "Fuerza del equipo"]
+    else:
+        cols = ["Pos", "Selección", "Grupo", "Gana el Mundial", "Llega a la final",
+                "Llega a semifinales", "Supera la fase de grupos", "Fuerza del equipo"]
     st.dataframe(
         table[cols],
         hide_index=True,
@@ -592,9 +622,10 @@ def _render_fill_bracket(df: pd.DataFrame) -> None:
     if n_thirds >= 8:
         cap += " Ya tienes 8; quita uno para cambiar."
     st.caption(cap)
-    cols = st.columns(3)
+    ncol = 1 if is_mobile() else 3
+    cols = st.columns(ncol)
     for i, L in enumerate(mc.LETTERS):
-        with cols[i % 3]:
+        with cols[i % ncol]:
             with st.container(border=True):
                 p = picks.get(L, [])
                 th = thirds.get(L)
@@ -638,54 +669,67 @@ def _render_fill_bracket(df: pd.DataFrame) -> None:
         kind, ref = spec
         return first[ref] if kind == "W" else second[ref] if kind == "R" else slot_team[ref]
 
-    # PASO 3 — cuadro clicable (mismo estilo que el Cuadro: ganador en verde).
+    # PASO 3 — cuadro clicable (ganador en verde).
     st.subheader("3) Tu cuadro — pulsa quién avanza en cada cruce")
-    st.caption("Por defecto pasa el favorito. Pulsa un equipo para que avance él. "
-               "En móvil, desliza el cuadro en horizontal.")
+    st.caption("Por defecto pasa el favorito. Pulsa un equipo para que avance él.")
     overrides = S["fb_ko"]
     winners, matches = {}, {}
 
-    def _spacer(colobj, h):
-        if h > 0:
-            colobj.markdown(f"<div style='height:{h}px'></div>", unsafe_allow_html=True)
-
-    def ko_card(colobj, m, a, b):
+    def ko_card(m, a, b):
         cur = overrides.get(m)
         w = cur if cur in (a, b) else (a if wpi[a] >= wpi[b] else b)
         winners[m], matches[m] = w, (a, b)
-        with colobj:
-            with st.container(border=True):
-                if st.button(a, key=f"fb_ko_{m}_a", use_container_width=True,
-                             type="primary" if w == a else "secondary"):
-                    overrides[m] = a; st.rerun()
-                if st.button(b, key=f"fb_ko_{m}_b", use_container_width=True,
-                             type="primary" if w == b else "secondary"):
-                    overrides[m] = b; st.rerun()
+        with st.container(border=True):
+            if st.button(a, key=f"fb_ko_{m}_a", use_container_width=True,
+                         type="primary" if w == a else "secondary"):
+                overrides[m] = a; st.rerun()
+            if st.button(b, key=f"fb_ko_{m}_b", use_container_width=True,
+                         type="primary" if w == b else "secondary"):
+                overrides[m] = b; st.rerun()
 
     order = {title: ms for title, ms in _BRACKET_COLUMNS}
-    bcols = st.columns(6)
-    for c, h in zip(bcols, ["Dieciseisavos", "Octavos", "Cuartos", "Semis", "Final", "Campeón"]):
-        c.markdown(f"**{h}**")
-    unit = 96  # altura aproximada de una cajita, para centrar cada ronda
+    rounds = [("Dieciseisavos", mc.R32, "r32"), ("Octavos", mc.R16, "tree"),
+              ("Cuartos", mc.QF, "tree"), ("Semifinales", mc.SF, "tree"), ("Final", mc.FINAL, "tree")]
 
-    def render_round(colobj, r, mlist, get_ab):
-        _spacer(colobj, int((2 ** r - 1) * unit / 2))
-        for k, m in enumerate(mlist):
-            a, b = get_ab(m)
-            ko_card(colobj, m, a, b)
-            if k < len(mlist) - 1:
-                _spacer(colobj, int((2 ** r - 1) * unit))
+    def parts(tree, kind, m):
+        if kind == "r32":
+            return part(tree[m][0]), part(tree[m][1])
+        return winners[tree[m][0]], winners[tree[m][1]]
 
-    render_round(bcols[0], 0, order["Dieciseisavos"],
-                 lambda m: (part(mc.R32[m][0]), part(mc.R32[m][1])))
-    for idx, (title, tree) in enumerate(
-            [("Octavos", mc.R16), ("Cuartos", mc.QF), ("Semifinales", mc.SF), ("Final", mc.FINAL)], start=1):
-        render_round(bcols[idx], idx, order[title],
-                     lambda m, tr=tree: (winners[tr[m][0]], winners[tr[m][1]]))
+    if is_mobile():
+        # Móvil: rondas apiladas (las 6 columnas no caben).
+        for title, tree, kind in rounds:
+            st.markdown(f"**{title}**")
+            ms = order[title]
+            mcols = st.columns(2 if len(ms) >= 4 else 1)
+            for k, m in enumerate(ms):
+                with mcols[k % len(mcols)]:
+                    ko_card(m, *parts(tree, kind, m))
+        champ = winners[104]
+        st.success(f"🏆 Tu campeón: **{champ}**")
+    else:
+        # Escritorio: 6 columnas con centrado aproximado por ronda.
+        bcols = st.columns(6)
+        for c, h in zip(bcols, ["Dieciseisavos", "Octavos", "Cuartos", "Semis", "Final", "Campeón"]):
+            c.markdown(f"**{h}**")
+        unit = 96
 
-    champ = winners[104]
-    _spacer(bcols[5], int((2 ** 4 - 1) * unit / 2))
-    bcols[5].success(f"🏆 {champ}")
+        def _spacer(h):
+            if h > 0:
+                st.markdown(f"<div style='height:{h}px'></div>", unsafe_allow_html=True)
+
+        for r, (title, tree, kind) in enumerate(rounds):
+            ms = order[title]
+            with bcols[r]:
+                _spacer(int((2 ** r - 1) * unit / 2))
+                for k, m in enumerate(ms):
+                    ko_card(m, *parts(tree, kind, m))
+                    if k < len(ms) - 1:
+                        _spacer(int((2 ** r - 1) * unit))
+        champ = winners[104]
+        with bcols[5]:
+            _spacer(int((2 ** 4 - 1) * unit / 2))
+            st.success(f"🏆 {champ}")
 
     # Compartir el pronóstico (sin probabilidad).
     render_share(
@@ -864,6 +908,7 @@ def _safe(fn, df) -> None:
 
 
 def main() -> None:
+    detect_mobile()
     df = load_data()
     section = render_sidebar(using_real=df is not None)
     if df is None:
