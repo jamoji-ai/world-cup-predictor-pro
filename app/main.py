@@ -241,12 +241,13 @@ gana cada una.
 
 **2. La simulación** juega los 72 partidos reales de la fase de grupos (con
 ventaja para los anfitriones USA, México y Canadá cuando juegan en casa) y
-después la eliminatoria, 50.000 veces. La probabilidad de "ganar el Mundial" es
-simplemente cuántas de esas 50.000 veces acaba campeona.
+después la eliminatoria con el **cuadro oficial del Mundial 2026** (cruces
+reales del sorteo, incluida la colocación de los 8 mejores terceros), 50.000
+veces. La probabilidad de "ganar el Mundial" es cuántas de esas 50.000 veces
+acaba campeona. **Los partidos ya jugados cuentan como resultado real**: solo se
+simula lo que queda por jugar.
 
-*Los pesos son una elección razonada y transparente, no una fórmula mágica.
-La eliminatoria del MVP usa un cuadro por nivel; el cruce oficial exacto del
-sorteo se incorpora en una próxima versión.*
+*Los pesos son una elección razonada y transparente, no una fórmula mágica.*
             """
         )
 
