@@ -1,4 +1,4 @@
-"""montecarlo.py — Motor de simulación del Mundial (doc 03).
+"""wc_engine.py — Motor de simulación del Mundial (doc 03).
 
 Simula N veces el torneo completo y estima, por selección, la probabilidad de
 superar cada fase (avanzar de grupos, octavos, cuartos, semis, final, campeón).
@@ -18,8 +18,8 @@ Fidelidad de datos:
 Vectorizado con NumPy: la fase de grupos genera todas las simulaciones de cada
 partido de una vez; la eliminatoria se juega ronda a ronda sobre matrices (N, k).
 
-Uso (módulo): from montecarlo import run_simulation; df = run_simulation(10000)
-Uso (CLI):    python scripts/montecarlo.py --sims 10000
+Uso (módulo): from wc_engine import run_simulation; df = run_simulation(10000)
+Uso (CLI):    python scripts/wc_engine.py --sims 10000
 """
 from __future__ import annotations
 
@@ -102,7 +102,7 @@ FINAL = {104: (101, 102)}
 
 def _log(msg: str) -> None:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{ts}] [montecarlo] {msg}")
+    print(f"[{ts}] [wc_engine] {msg}")
 
 
 # --- Tabla de asignación de terceros (precomputada) --------------------------

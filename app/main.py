@@ -304,7 +304,7 @@ def predicted_bracket(df: pd.DataFrame):
     cada cruce avanza el favorito. Usa el cuadro OFICIAL del Mundial 2026."""
     import sys
     sys.path.insert(0, str(ROOT / "scripts"))
-    import montecarlo as mc
+    import wc_engine as mc
 
     wpi = dict(zip(df["canonical_name"], df["wpi"]))
     grp = {ltr: sorted([t for t in members], key=lambda t: -wpi.get(t, 0))
@@ -414,7 +414,7 @@ def render_bracket_boxes(matches: dict, win: dict) -> None:
 def _mc():
     import sys
     sys.path.insert(0, str(ROOT / "scripts"))
-    import montecarlo as mc
+    import wc_engine as mc
     return mc
 
 

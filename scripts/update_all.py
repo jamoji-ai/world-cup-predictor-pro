@@ -105,7 +105,7 @@ def main() -> int:
             return 1
 
     _log(f"--- Simulación Monte Carlo oficial ({args.sims} sims) ---")
-    res = subprocess.run([sys.executable, str(SCRIPTS / "montecarlo.py"), "--sims", str(args.sims)])
+    res = subprocess.run([sys.executable, str(SCRIPTS / "wc_engine.py"), "--sims", str(args.sims)])
     if res.returncode != 0:
         _log("ERROR CRÍTICO: la simulación falló. Abortando.")
         return 1
