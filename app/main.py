@@ -461,10 +461,12 @@ def _render_what_if(df: pd.DataFrame) -> None:
     fixtures = get_fixtures()
     teams = sorted(df["canonical_name"].tolist())
     team = st.selectbox("Selección", teams, key="whatif_team")
-    its = [f for f in fixtures if team in (f["home"], f["away"])]
+    # Solo partidos que quedan por jugar: los ya jugados son resultado fijo.
+    its = [f for f in fixtures if team in (f["home"], f["away"]) and not f["played"]]
     labels = [f"vs {f['away'] if f['home'] == team else f['home']} (Grupo {f['group']})" for f in its]
     if not its:
-        st.info("Sin partidos de grupo encontrados.")
+        st.info(f"{team} ya ha jugado todos sus partidos de la fase de grupos. "
+                "Prueba el simulador libre o mira el cuadro de eliminatorias.")
         return
     pick = st.selectbox("Partido", range(len(its)), format_func=lambda i: labels[i], key="whatif_match")
     f = its[pick]
@@ -490,11 +492,16 @@ def _render_what_if(df: pd.DataFrame) -> None:
 
 
 def _render_free_sim(df: pd.DataFrame) -> None:
-    st.caption("Fija los resultados que quieras de la fase de grupos y mira cómo "
-               "cambia todo. Útil para jugar tus propios '¿y si...?'.")
-    fixtures = [f for f in get_fixtures()]
+    st.caption("Fija los resultados que quieras de los partidos que aún no se han "
+               "jugado y mira cómo cambia todo. Útil para tus propios '¿y si...?'.")
+    # Solo partidos pendientes: los ya jugados ya están fijados en la simulación.
+    fixtures = [f for f in get_fixtures() if not f["played"]]
     if "fixed" not in st.session_state:
         st.session_state.fixed = []
+    if not fixtures:
+        st.info("Ya se ha jugado toda la fase de grupos. El cuadro de eliminatorias "
+                "muestra lo que queda.")
+        return
 
     labels = [f"{f['home']} vs {f['away']} (Grupo {f['group']})" for f in fixtures]
     c1, c2, c3, c4 = st.columns([3, 1, 1, 1])
