@@ -22,7 +22,11 @@ from sample_data import get_sample_ranking
 ROOT = Path(__file__).resolve().parents[1]
 SIM_CSV = ROOT / "data" / "results" / "simulation_results.csv"
 META_CSV = ROOT / "data" / "results" / "sim_meta.csv"
+HISTORY_CSV = ROOT / "data" / "results" / "history_log.csv"
 MASTER_CSV = ROOT / "data" / "processed" / "teams_master.csv"
+
+SCENARIO_SIMS = 10000  # simulaciones para los escenarios interactivos (rápido)
+SCENARIO_SEED = 7      # semilla fija: aísla el efecto del resultado fijado
 
 st.set_page_config(
     page_title="World Cup Predictor Pro",
@@ -395,13 +399,189 @@ def render_bracket_boxes(matches: dict, win: dict) -> None:
     components.html(css + "".join(parts), height=1220, scrolling=True)
 
 
-def render_coming_soon(section: str) -> None:
-    st.title(section.split(" ", 1)[1] if " " in section else section)
-    st.info("🚧 Esta sección llega en el **Día 6**: simulador manual de partidos, "
-            "'¿qué necesita mi selección?', detector de sorpresas y evolución temporal.")
+# --- Helpers de simulación (Día 6) ------------------------------------------
+
+def _mc():
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import montecarlo as mc
+    return mc
+
+
+@st.cache_data(ttl=1800)
+def get_fixtures() -> list[dict]:
+    """Lista de partidos de la fase de grupos (nombres, grupo, local, marcador)."""
+    mc = _mc()
+    t = mc.load_tournament()
+    teams, tl = t["teams"], t["team_letter"]
+    out = []
+    for ih, ia, home_adv, sh, sa in t["fixtures"]:
+        out.append({"home": teams[ih], "away": teams[ia], "group": tl[teams[ih]],
+                    "home_adv": home_adv, "played": sh is not None})
+    return out
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def simulate_scenario(extra_key: tuple, n: int = SCENARIO_SIMS, seed: int = SCENARIO_SEED) -> pd.DataFrame:
+    """Simulación con resultados hipotéticos fijados (cacheada por escenario)."""
+    mc = _mc()
+    df = mc.run_simulation(n, seed=seed, extra_results=list(extra_key) or None)
+    return df.set_index("canonical_name")
+
+
+@st.cache_data(ttl=1800)
+def wpi_map() -> dict:
+    return dict(zip(load_data()["canonical_name"], load_data()["wpi"]))
+
+
+# --- Simulador (🎮): ¿qué necesita? + simulador libre -----------------------
+
+def render_simulator(df: pd.DataFrame) -> None:
+    st.title("Juega tú con el Mundial")
+    tab1, tab2 = st.tabs(["🎯 ¿Qué necesita mi selección?", "🎮 Simulador libre"])
+    with tab1:
+        _render_what_if(df)
+    with tab2:
+        _render_free_sim(df)
+
+
+def _render_what_if(df: pd.DataFrame) -> None:
+    st.caption("Elige una selección y un partido de su grupo. Te enseñamos cómo "
+               "cambian sus opciones de ganar el Mundial si gana, empata o pierde.")
+    fixtures = get_fixtures()
+    teams = sorted(df["canonical_name"].tolist())
+    team = st.selectbox("Selección", teams, key="whatif_team")
+    its = [f for f in fixtures if team in (f["home"], f["away"])]
+    labels = [f"vs {f['away'] if f['home'] == team else f['home']} (Grupo {f['group']})" for f in its]
+    if not its:
+        st.info("Sin partidos de grupo encontrados.")
+        return
+    pick = st.selectbox("Partido", range(len(its)), format_func=lambda i: labels[i], key="whatif_match")
+    f = its[pick]
+    rival = f["away"] if f["home"] == team else f["home"]
+
+    base = simulate_scenario(())
+    scenarios = [("Gana", 2, 0), ("Empata", 1, 1), ("Pierde", 0, 2)]
+    st.markdown(f"### {team} — {rival}")
+    cols = st.columns(3)
+    base_champ = base.loc[team, "prob_campeon"]
+    for col, (name, gf, ga) in zip(cols, scenarios):
+        res = simulate_scenario(((team, rival, gf, ga),))
+        champ = res.loc[team, "prob_campeon"]
+        adv = res.loc[team, "prob_avanza_grupos"]
+        delta = (champ - base_champ) * 100
+        with col:
+            st.markdown(f"**Si {name.lower()} ({gf}-{ga})**")
+            st.metric("Gana el Mundial", pct(champ),
+                      f"{delta:+.1f} puntos" if abs(delta) >= 0.05 else "≈ igual")
+            st.caption(f"Pasa de grupos: {pct(adv)}")
+    st.caption(f"Referencia actual de {team}: gana el Mundial {pct(base_champ)} · "
+               f"pasa de grupos {pct(base.loc[team, 'prob_avanza_grupos'])}.")
+
+
+def _render_free_sim(df: pd.DataFrame) -> None:
+    st.caption("Fija los resultados que quieras de la fase de grupos y mira cómo "
+               "cambia todo. Útil para jugar tus propios '¿y si...?'.")
+    fixtures = [f for f in get_fixtures()]
+    if "fixed" not in st.session_state:
+        st.session_state.fixed = []
+
+    labels = [f"{f['home']} vs {f['away']} (Grupo {f['group']})" for f in fixtures]
+    c1, c2, c3, c4 = st.columns([3, 1, 1, 1])
+    mi = c1.selectbox("Partido", range(len(fixtures)), format_func=lambda i: labels[i], key="free_match")
+    gh = c2.number_input(fixtures[mi]["home"], 0, 15, 1, key="free_gh")
+    ga = c3.number_input(fixtures[mi]["away"], 0, 15, 0, key="free_ga")
+    if c4.button("➕ Añadir", use_container_width=True):
+        f = fixtures[mi]
+        st.session_state.fixed = [x for x in st.session_state.fixed
+                                  if {x[0], x[1]} != {f["home"], f["away"]}]
+        st.session_state.fixed.append((f["home"], f["away"], int(gh), int(ga)))
+
+    if st.session_state.fixed:
+        st.markdown("**Resultados fijados:**")
+        for a, b, x, y in st.session_state.fixed:
+            st.markdown(f"- {a} {x}–{y} {b}")
+        if st.button("🔄 Reiniciar"):
+            st.session_state.fixed = []
+            st.rerun()
+
+        base = simulate_scenario(())
+        res = simulate_scenario(tuple(st.session_state.fixed))
+        comp = pd.DataFrame({
+            "Selección": res.index,
+            "Antes": (base["prob_campeon"] * 100).reindex(res.index).values,
+            "Ahora": (res["prob_campeon"] * 100).values,
+        })
+        comp["Cambio"] = comp["Ahora"] - comp["Antes"]
+        comp = comp.reindex(comp["Cambio"].abs().sort_values(ascending=False).index).head(12)
+        st.markdown("**Quién más cambia (probabilidad de ganar el Mundial):**")
+        st.dataframe(
+            comp, hide_index=True, use_container_width=True,
+            column_config={
+                "Antes": st.column_config.NumberColumn("Antes", format="%.1f%%"),
+                "Ahora": st.column_config.NumberColumn("Ahora", format="%.1f%%"),
+                "Cambio": st.column_config.NumberColumn("Cambio", format="%+.1f pp"),
+            },
+        )
+    else:
+        st.info("Añade al menos un resultado para ver el efecto.")
+
+
+# --- Detector de sorpresas (⚡) ---------------------------------------------
+
+def render_upsets(df: pd.DataFrame) -> None:
+    st.title("Detector de sorpresas")
+    st.caption("Los partidos de la próxima jornada donde el equipo más débil (según "
+               "su fuerza) tiene más opciones de dar la campanada.")
+    mc = _mc()
+    w = wpi_map()
+    fixtures = [f for f in get_fixtures() if not f["played"]]
+    rows = []
+    for f in fixtures:
+        home, away = f["home"], f["away"]
+        pa, pdraw, pb = mc.match_outcome_probs(w[home], w[away], home_adv_a=f["home_adv"])
+        # "Sorpresa" = gana el de menor fuerza.
+        if w[home] <= w[away]:
+            underdog, fav, p_up = home, away, pa
+        else:
+            underdog, fav, p_up = away, home, pb
+        rows.append({"underdog": underdog, "fav": fav, "p": p_up, "group": f["group"]})
+    top = sorted(rows, key=lambda r: -r["p"])[:8]
+    if not top:
+        st.info("No hay partidos pendientes ahora mismo.")
+        return
+    for r in top:
+        st.markdown(
+            f"**{r['underdog']}** puede ganar a **{r['fav']}**  ·  "
+            f"`{r['p']*100:.0f}%`  _(Grupo {r['group']})_"
+        )
+        st.progress(min(1.0, r["p"]))
 
 
 # --- "Cómo funciona" (técnico, separado de las cifras del usuario) ----------
+
+def render_evolution(df: pd.DataFrame) -> None:
+    if not HISTORY_CSV.exists():
+        return
+    try:
+        hist = pd.read_csv(HISTORY_CSV)
+    except Exception:  # noqa: BLE001
+        return
+    dates = sorted(hist["date"].unique())
+    st.subheader("Cómo evoluciona la probabilidad de ganar el Mundial")
+    if len(dates) < 2:
+        st.caption("📅 Aún solo hay una foto de hoy. En cuanto pasen los días (y los "
+                   "partidos), aquí verás cómo sube y baja cada favorito.")
+        return
+    top_teams = df.head(6)["canonical_name"].tolist()
+    h = hist[hist["canonical_name"].isin(top_teams)].copy()
+    h["%"] = h["prob_campeon"] * 100
+    fig = px.line(h, x="date", y="%", color="canonical_name", markers=True,
+                  labels={"date": "", "canonical_name": ""})
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), height=380,
+                      yaxis_title="Gana el Mundial (%)", legend_title_text="")
+    st.plotly_chart(fig, use_container_width=True)
+
 
 def render_how_it_works() -> None:
     with st.expander("ℹ️ Cómo funciona el modelo (metodología)", expanded=False):
@@ -471,8 +651,10 @@ def main() -> None:
         render_team_view(df)
     elif section.startswith("🗂️"):
         render_bracket(df)
-    elif section.startswith(("🎮", "⚡")):
-        render_coming_soon(section)
+    elif section.startswith("🎮"):
+        render_simulator(df)
+    elif section.startswith("⚡"):
+        render_upsets(df)
     else:  # Favoritos
         render_hero(df)
         render_live_status(load_meta())
@@ -484,6 +666,8 @@ def main() -> None:
             render_bar(df)
         st.divider()
         render_journey(df)
+        st.divider()
+        render_evolution(df)
 
     st.divider()
     render_how_it_works()

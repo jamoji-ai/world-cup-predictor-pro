@@ -199,6 +199,36 @@ def load_tournament() -> dict:
 
 # --- Simulación de la fase de grupos -----------------------------------------
 
+def match_outcome_probs(wpi_a: float, wpi_b: float, home_adv_a: bool = False,
+                        max_goals: int = 9) -> tuple[float, float, float]:
+    """Probabilidad (gana A, empate, gana B) de un partido, modelo Poisson (doc 03).
+
+    Suma analítica sobre marcadores 0..max_goals. home_adv_a añade el plus de
+    local a A. Útil para el detector de sorpresas y la vista de partido.
+    """
+    from math import exp, factorial
+    lam_a, lam_b = wpi_mod.expected_goals(wpi_a, wpi_b, BASE_GOALS)
+    if home_adv_a:
+        lam_a += HOME_GOALS_BONUS
+
+    def pmf(lam, k):
+        return exp(-lam) * lam ** k / factorial(k)
+
+    p_a = [pmf(lam_a, k) for k in range(max_goals + 1)]
+    p_b = [pmf(lam_b, k) for k in range(max_goals + 1)]
+    pa = pd_ = pb = 0.0
+    for ga in range(max_goals + 1):
+        for gb in range(max_goals + 1):
+            p = p_a[ga] * p_b[gb]
+            if ga > gb:
+                pa += p
+            elif ga == gb:
+                pd_ += p
+            else:
+                pb += p
+    return pa, pd_, pb
+
+
 def _standings_key(points, gf, ga):
     """Clave ordenable: puntos, luego dif. de goles, luego goles a favor."""
     return points * 1_000_000 + (gf - ga + 1000) * 1000 + gf
@@ -294,9 +324,44 @@ def _knockout(t, winners, runners, thirds, thirds_key, n, rng):
 
 # --- Orquestación de una simulación completa ---------------------------------
 
-def run_simulation(n: int = 10000, seed: int | None = None) -> pd.DataFrame:
-    """Corre N simulaciones y devuelve probabilidades por fase y selección."""
+def apply_hypothetical(t: dict, extra_results) -> dict:
+    """Fija marcadores hipotéticos en la fase de grupos (simulador manual, Día 6).
+
+    extra_results: iterable de (equipo_a, equipo_b, goles_a, goles_b). Se localiza
+    el partido entre esos dos equipos y se fija su marcador respetando quién es
+    local/visitante en el calendario. No altera n_played_groups (es un "¿y si...?").
+    """
+    if not extra_results:
+        return t
+    idx = {name: i for i, name in enumerate(t["teams"])}
+    fixed = {}
+    for a, b, ga, gb in extra_results:
+        if a not in idx or b not in idx:
+            continue
+        fixed[frozenset((idx[a], idx[b]))] = (idx[a], int(ga), int(gb))
+    new_fixtures = []
+    for ih, ia, home_adv, sh, sa in t["fixtures"]:
+        key = frozenset((ih, ia))
+        if key in fixed:
+            ref_team, ref_ga, ref_gb = fixed[key]
+            if ih == ref_team:
+                sh, sa = ref_ga, ref_gb
+            else:
+                sh, sa = ref_gb, ref_ga
+        new_fixtures.append((ih, ia, home_adv, sh, sa))
+    t = dict(t)
+    t["fixtures"] = new_fixtures
+    return t
+
+
+def run_simulation(n: int = 10000, seed: int | None = None, extra_results=None) -> pd.DataFrame:
+    """Corre N simulaciones y devuelve probabilidades por fase y selección.
+
+    extra_results: marcadores hipotéticos a fijar antes de simular (ver
+    apply_hypothetical) — usado por el simulador manual.
+    """
     t = load_tournament()
+    t = apply_hypothetical(t, extra_results)
     rng = np.random.default_rng(seed)
     n_teams = len(t["teams"])
 
