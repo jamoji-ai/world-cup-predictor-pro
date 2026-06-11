@@ -16,7 +16,7 @@ rank,elo_code,team_name,elo_rating
 15,BE,Belgium,1894
 16,UY,Uruguay,1892
 17,CH,Switzerland,1891
-18,MX,Mexico,1875
+18,MX,Mexico,1881
 19,DK,Denmark,1869
 19,IT,Italy,1869
 21,SN,Senegal,1860
@@ -78,7 +78,7 @@ rank,elo_code,team_name,elo_rating
 77,BF,Burkina Faso,1529
 78,JM,Jamaica,1527
 79,BY,Belarus,1522
-80,ZA,South Africa,1517
+80,ZA,South Africa,1511
 81,GH,Ghana,1510
 82,GT,Guatemala,1504
 83,OM,Oman,1480
