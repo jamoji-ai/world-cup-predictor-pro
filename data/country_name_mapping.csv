@@ -1,49 +1,49 @@
-canonical_name,confederation,elo_code,fifa_name,transfermarkt_slug
-Spain,UEFA,ES,Spain,spanien
-France,UEFA,FR,France,frankreich
-England,UEFA,EN,England,england
-Portugal,UEFA,PT,Portugal,portugal
-Netherlands,UEFA,NL,Netherlands,niederlande
-Germany,UEFA,DE,Germany,deutschland
-Croatia,UEFA,HR,Croatia,kroatien
-Belgium,UEFA,BE,Belgium,belgien
-Switzerland,UEFA,CH,Switzerland,schweiz
-Austria,UEFA,AT,Austria,oesterreich
-Norway,UEFA,NO,Norway,norwegen
-Turkey,UEFA,TR,Türkiye,tuerkei
-Sweden,UEFA,SE,Sweden,schweden
-Scotland,UEFA,SQ,Scotland,schottland
-Czech Republic,UEFA,CZ,Czechia,tschechien
-Bosnia and Herzegovina,UEFA,BA,Bosnia and Herzegovina,bosnien-herzegowina
-Argentina,CONMEBOL,AR,Argentina,argentinien
-Brazil,CONMEBOL,BR,Brazil,brasilien
-Colombia,CONMEBOL,CO,Colombia,kolumbien
-Uruguay,CONMEBOL,UY,Uruguay,uruguay
-Ecuador,CONMEBOL,EC,Ecuador,ecuador
-Paraguay,CONMEBOL,PY,Paraguay,paraguay
-Mexico,CONCACAF,MX,Mexico,mexiko
-United States,CONCACAF,US,USA,usa
-Canada,CONCACAF,CA,Canada,kanada
-Panama,CONCACAF,PA,Panama,panama
-Haiti,CONCACAF,HT,Haiti,haiti
-Curaçao,CONCACAF,CW,Curaçao,curacao
-Morocco,CAF,MA,Morocco,marokko
-Senegal,CAF,SN,Senegal,senegal
-Algeria,CAF,DZ,Algeria,algerien
-Egypt,CAF,EG,Egypt,aegypten
-Tunisia,CAF,TN,Tunisia,tunesien
-Ivory Coast,CAF,CI,Côte d'Ivoire,elfenbeinkueste
-Ghana,CAF,GH,Ghana,ghana
-Cape Verde,CAF,CV,Cabo Verde,kap-verde
-DR Congo,CAF,CD,Congo DR,dr-kongo
-South Africa,CAF,ZA,South Africa,sudafrika
-Japan,AFC,JP,Japan,japan
-South Korea,AFC,KR,Korea Republic,sudkorea
-Iran,AFC,IR,IR Iran,iran
-Australia,AFC,AU,Australia,australien
-Saudi Arabia,AFC,SA,Saudi Arabia,saudi-arabien
-Qatar,AFC,QA,Qatar,katar
-Uzbekistan,AFC,UZ,Uzbekistan,usbekistan
-Jordan,AFC,JO,Jordan,jordanien
-Iraq,AFC,IQ,Iraq,irak
-New Zealand,OFC,NZ,New Zealand,neuseeland
+canonical_name,confederation,elo_code,fifa_name,transfermarkt_slug,transfermarkt_id
+Spain,UEFA,ES,Spain,spanien,3375
+France,UEFA,FR,France,frankreich,3377
+England,UEFA,EN,England,england,3299
+Portugal,UEFA,PT,Portugal,portugal,3300
+Netherlands,UEFA,NL,Netherlands,niederlande,3379
+Germany,UEFA,DE,Germany,deutschland,3262
+Croatia,UEFA,HR,Croatia,kroatien,3556
+Belgium,UEFA,BE,Belgium,belgien,3382
+Switzerland,UEFA,CH,Switzerland,schweiz,3384
+Austria,UEFA,AT,Austria,osterreich,3383
+Norway,UEFA,NO,Norway,norwegen,3440
+Turkey,UEFA,TR,Türkiye,turkei,3381
+Sweden,UEFA,SE,Sweden,schweden,3557
+Scotland,UEFA,SQ,Scotland,schottland,3380
+Czech Republic,UEFA,CZ,Czechia,tschechien,3445
+Bosnia and Herzegovina,UEFA,BA,Bosnia and Herzegovina,bosnien-herzegowina,3446
+Argentina,CONMEBOL,AR,Argentina,argentinien,3437
+Brazil,CONMEBOL,BR,Brazil,brasilien,3439
+Colombia,CONMEBOL,CO,Colombia,kolumbien,3816
+Uruguay,CONMEBOL,UY,Uruguay,uruguay,3449
+Ecuador,CONMEBOL,EC,Ecuador,ecuador,5750
+Paraguay,CONMEBOL,PY,Paraguay,paraguay,3581
+Mexico,CONCACAF,MX,Mexico,mexiko,6303
+United States,CONCACAF,US,USA,vereinigte-staaten,3505
+Canada,CONCACAF,CA,Canada,kanada,3510
+Panama,CONCACAF,PA,Panama,panama,3577
+Haiti,CONCACAF,HT,Haiti,haiti,14161
+Curaçao,CONCACAF,CW,Curaçao,curacao,32364
+Morocco,CAF,MA,Morocco,marokko,3575
+Senegal,CAF,SN,Senegal,senegal,3499
+Algeria,CAF,DZ,Algeria,algerien,3614
+Egypt,CAF,EG,Egypt,agypten,3672
+Tunisia,CAF,TN,Tunisia,tunesien,3670
+Ivory Coast,CAF,CI,Côte d'Ivoire,elfenbeinkuste,3591
+Ghana,CAF,GH,Ghana,ghana,3441
+Cape Verde,CAF,CV,Cabo Verde,kap-verde,4311
+DR Congo,CAF,CD,Congo DR,demokratische-republik-kongo,3854
+South Africa,CAF,ZA,South Africa,sudafrika,3806
+Japan,AFC,JP,Japan,japan,3435
+South Korea,AFC,KR,Korea Republic,sudkorea,3589
+Iran,AFC,IR,IR Iran,iran,3582
+Australia,AFC,AU,Australia,australien,3433
+Saudi Arabia,AFC,SA,Saudi Arabia,saudi-arabien,3807
+Qatar,AFC,QA,Qatar,katar,14162
+Uzbekistan,AFC,UZ,Uzbekistan,usbekistan,3563
+Jordan,AFC,JO,Jordan,jordanien,15737
+Iraq,AFC,IQ,Iraq,irak,3560
+New Zealand,OFC,NZ,New Zealand,neuseeland,9171

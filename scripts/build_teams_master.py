@@ -5,8 +5,9 @@ Mundial (data/country_name_mapping.csv) y calcula la "forma reciente", dejando
 un único processed/teams_master.csv con las variables DEPORTIVAS, en crudo y
 normalizadas 0-1 sobre el conjunto de participantes.
 
-Día 2: solo variables deportivas (Elo, FIFA, forma). Las de mercado
-(Transfermarkt) y el WPI completo se añaden en el Día 3.
+Día 3: añade las variables de MERCADO (Transfermarkt) — valor total, valor
+medio, % ligas top-5 y edad media (esta vía función campana del doc 03). El WPI
+completo se calcula aparte en wpi.py a partir de este teams_master.csv.
 
 --- Forma reciente (ajuste sobre doc 03) ---
 El doc 03 fijaba "últimos 10 partidos, puntos/30". Se AMPLÍA la ventana
@@ -33,7 +34,12 @@ MAPPING_CSV = ROOT / "data" / "country_name_mapping.csv"
 ELO_CSV = ROOT / "data" / "raw" / "elo_ratings.csv"
 FIFA_CSV = ROOT / "data" / "raw" / "fifa_ranking.csv"
 MATCHES_CSV = ROOT / "data" / "raw" / "matches_history.csv"
+TM_CSV = ROOT / "data" / "raw" / "transfermarkt_squads.csv"
 OUTPUT_PATH = ROOT / "data" / "processed" / "teams_master.csv"
+
+# Edad media -> función campana (doc 03): óptimo ~26.5, decae hacia extremos.
+AGE_OPTIMAL = 26.5
+AGE_SPREAD = 4.0
 
 DEFAULT_FORM_WINDOW = 20
 DEFAULT_FRIENDLY_WEIGHT = 0.5  # amistosos pesan la mitad (alineaciones B pre-Mundial)
@@ -50,6 +56,11 @@ def _minmax(s: pd.Series) -> pd.Series:
     if pd.isna(lo) or pd.isna(hi) or hi == lo:
         return pd.Series(0.5, index=s.index)
     return (s - lo) / (hi - lo)
+
+
+def age_score(avg_age: pd.Series) -> pd.Series:
+    """Función campana del doc 03: ~1.0 cerca de 26.5 años, decae a los extremos."""
+    return np.exp(-((avg_age - AGE_OPTIMAL) ** 2) / (2 * AGE_SPREAD ** 2))
 
 
 # --- Forma reciente ----------------------------------------------------------
@@ -128,11 +139,29 @@ def build(form_window: int, friendly_weight: float) -> pd.DataFrame:
         f"Media partidos usados: {df['form_matches'].mean():.1f}."
     )
 
+    # --- Variables de MERCADO (Transfermarkt, Día 3) ---
+    market_cols = ["market_value_total", "market_value_avg", "avg_age",
+                   "top_player", "top_player_value", "pct_top5_leagues"]
+    if TM_CSV.exists():
+        tm = pd.read_csv(TM_CSV)[["canonical_name", *market_cols]]
+        df = df.merge(tm, on="canonical_name", how="left")
+        miss_tm = df["market_value_total"].isna().sum()
+        if miss_tm:
+            _log(f"AVISO: {miss_tm} selecciones sin datos de Transfermarkt.")
+    else:
+        _log("AVISO: no hay transfermarkt_squads.csv; variables de mercado vacías.")
+        for c in market_cols:
+            df[c] = np.nan
+
     # --- Normalización 0-1 sobre las participantes (doc 02, paso 2) ---
     df["elo_n"] = _minmax(df["elo_rating"])
     # FIFA: menor rank = mejor -> invertir. Usamos puntos (mayor = mejor) si hay.
     df["fifa_n"] = _minmax(df["fifa_points"])
     df["form_n"] = (df["form_points"] / df["form_max"]).where(df["form_max"] > 0, 0.0)
+    df["value_n"] = _minmax(df["market_value_total"])
+    df["value_avg_n"] = _minmax(df["market_value_avg"])
+    df["top5_n"] = df["pct_top5_leagues"].fillna(0.0)  # ya es 0-1
+    df["age_n"] = age_score(df["avg_age"])
 
     df = df.sort_values("elo_rating", ascending=False).reset_index(drop=True)
 
@@ -140,7 +169,9 @@ def build(form_window: int, friendly_weight: float) -> pd.DataFrame:
         "canonical_name", "confederation", "elo_code",
         "elo_rating", "fifa_rank", "fifa_points",
         "form_points", "form_max", "form_matches",
-        "elo_n", "fifa_n", "form_n",
+        "market_value_total", "market_value_avg", "avg_age",
+        "top_player", "top_player_value", "pct_top5_leagues",
+        "elo_n", "fifa_n", "form_n", "value_n", "value_avg_n", "top5_n", "age_n",
     ]
     return df[cols]
 
