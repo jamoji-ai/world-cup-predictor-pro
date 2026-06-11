@@ -18,5 +18,6 @@ Thumbs.db
 # Datos crudos voluminosos o temporales (los CSV pequeños SÍ se versionan)
 data/raw/*.html
 data/raw/*.tmp
-data/raw/transfermarkt_html/   # dumps HTML de TM (caché regenerable, ~10MB)
+# Dumps HTML de Transfermarkt: caché regenerable (~10MB), no se versiona
+data/raw/transfermarkt_html/
 *.log
