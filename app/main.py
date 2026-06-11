@@ -568,43 +568,86 @@ def _format_one_in(one_in: float) -> str:
 
 
 def _render_fill_bracket(df: pd.DataFrame) -> None:
-    st.caption("Predice el Mundial **entero**: quién pasa de cada grupo y quién gana "
-               "cada cruce hasta la final. Al terminar te decimos la probabilidad real "
-               "de que ocurra tu cuadro… y lo podrás compartir.")
+    st.markdown(
+        "<style>div[data-testid='stButton'] button[kind='primary']{background:#0b6b57!important;"
+        "border-color:#0b6b57!important;color:#fff!important;}"
+        "div[data-testid='stButton'] button{padding:2px 6px;font-size:0.8rem;min-height:0;}</style>",
+        unsafe_allow_html=True)
+    st.caption("Predice el Mundial **entero** clicando. En cada grupo: el 1º que pulses pasa "
+               "primero y el 2º, segundo. Marca además **8 terceros en total** (uno por cajita "
+               "como mucho). Luego elige quién gana cada cruce.")
     mc = _mc()
     wpi = dict(zip(df["canonical_name"], df["wpi"]))
     groups = {L: sorted(list(members), key=lambda t: -wpi.get(t, 0))
               for L, members in mc.OFFICIAL_GROUPS.items()}
+    S = st.session_state
+    picks = S.setdefault("fb_picks", {})       # L -> [1º, 2º]
+    thirds = S.setdefault("fb_thirds2", {})    # L -> tercero
+    S.setdefault("fb_ko", {})
 
-    # PASO 1 — 1º y 2º de cada grupo.
+    def click_team(L, team):
+        p = picks.setdefault(L, [])
+        if team in p:
+            p.remove(team)
+        elif len(p) < 2:
+            p.append(team)
+            if thirds.get(L) == team:
+                thirds[L] = None
+
+    def click_third(L, team):
+        if thirds.get(L) == team:
+            thirds[L] = None
+        elif thirds.get(L) is None and sum(1 for v in thirds.values() if v) >= 8:
+            S["fb_third_full"] = True
+        else:
+            thirds[L] = team
+            S["fb_third_full"] = False
+
+    # PASO 1+2 — cajitas de grupo clicables.
     st.subheader("1) Quién pasa de cada grupo")
-    first, second = {}, {}
+    n_thirds = sum(1 for v in thirds.values() if v)
+    cap = f"Terceros marcados: **{n_thirds}/8**."
+    if n_thirds >= 8:
+        cap += " Ya tienes 8; quita uno para cambiar."
+    st.caption(cap)
     cols = st.columns(3)
     for i, L in enumerate(mc.LETTERS):
         with cols[i % 3]:
-            teams = groups[L]
-            f = st.selectbox(f"Grupo {L} · 1º", teams, key=f"fb_f_{L}")
-            opts2 = [t for t in teams if t != f]
-            s = st.selectbox(f"Grupo {L} · 2º", opts2, key=f"fb_s_{L}")
-            first[L], second[L] = f, s
+            with st.container(border=True):
+                p = picks.get(L, [])
+                th = thirds.get(L)
+                st.markdown(f"**Grupo {L}**")
+                for team in groups[L]:
+                    if p and p[0] == team:
+                        lbl, kind = f"① {team}", "primary"
+                    elif len(p) > 1 and p[1] == team:
+                        lbl, kind = f"② {team}", "primary"
+                    else:
+                        lbl, kind = team, "secondary"
+                    if st.button(lbl, key=f"fb_g_{L}_{team}", use_container_width=True, type=kind):
+                        click_team(L, team)
+                        st.rerun()
+                if len(p) == 2:
+                    cands = [t for t in groups[L] if t not in p]
+                    tcols = st.columns(2)
+                    for j, t in enumerate(cands):
+                        sel = th == t
+                        short = t if len(t) <= 12 else t[:11] + "…"
+                        if tcols[j].button(("③ " if sel else "3º · ") + short,
+                                           key=f"fb_t_{L}_{t}", use_container_width=True,
+                                           type="primary" if sel else "secondary"):
+                            click_third(L, t)
+                            st.rerun()
 
-    # PASO 2 — 8 mejores terceros (autocompletados, editables).
-    st.subheader("2) Los 8 mejores terceros")
-    remaining = [(t, L) for L in mc.LETTERS for t in groups[L] if t not in (first[L], second[L])]
-    team2group = {t: L for t, L in remaining}
-    stronger = {}
-    for t, L in remaining:
-        if L not in stronger or wpi[t] > wpi[stronger[L]]:
-            stronger[L] = t
-    default8 = sorted(stronger.values(), key=lambda t: -wpi[t])[:8]
-    chosen = st.multiselect(
-        "Elige 8, de 8 grupos distintos (máx. 1 por grupo)",
-        [t for t, _ in remaining], default=default8, max_selections=8, key="fb_thirds")
-    if len(chosen) != 8 or len({team2group[t] for t in chosen}) != 8:
-        st.warning("Elige exactamente **8 terceros de 8 grupos distintos** para continuar.")
+    complete = all(len(picks.get(L, [])) == 2 for L in mc.LETTERS)
+    n_thirds = sum(1 for v in thirds.values() if v)
+    if not complete or n_thirds != 8:
+        st.info("👆 Completa los **12 grupos** (1º y 2º) y marca **8 terceros** para ver tu cuadro.")
         return
 
-    third_group = {team2group[t]: t for t in chosen}
+    first = {L: picks[L][0] for L in mc.LETTERS}
+    second = {L: picks[L][1] for L in mc.LETTERS}
+    third_group = {L: t for L, t in thirds.items() if t}
     mask = sum(1 << mc.L2I[L] for L in third_group)
     slot_groups = mc.THIRDS_TABLE[mask]
     slot_team = {slot: third_group[mc.LETTERS[slot_groups[k]]] for k, slot in enumerate(mc.THIRD_SLOTS)}
@@ -613,36 +656,54 @@ def _render_fill_bracket(df: pd.DataFrame) -> None:
         kind, ref = spec
         return first[ref] if kind == "W" else second[ref] if kind == "R" else slot_team[ref]
 
-    # PASO 3 — eliminatoria interactiva (gana el favorito por defecto; cámbialo).
-    st.subheader("3) Tu cuadro de eliminatorias")
-    st.caption("Por defecto pasa el favorito en cada cruce. Pulsa para cambiar quién avanza.")
-    overrides = st.session_state.setdefault("fb_ko", {})
+    # PASO 3 — cuadro clicable (mismo estilo que el Cuadro: ganador en verde).
+    st.subheader("3) Tu cuadro — pulsa quién avanza en cada cruce")
+    st.caption("Por defecto pasa el favorito. Pulsa un equipo para que avance él. "
+               "En móvil, desliza el cuadro en horizontal.")
+    overrides = S["fb_ko"]
     winners, matches = {}, {}
 
-    def render_match(m, a, b):
-        key = f"fb_ko_{m}"
-        if key in st.session_state and st.session_state[key] not in (a, b):
-            del st.session_state[key]
-        default = overrides.get(m) if overrides.get(m) in (a, b) else (a if wpi[a] >= wpi[b] else b)
-        choice = st.radio(f"{a} — {b}", [a, b], index=[a, b].index(default),
-                          key=key, horizontal=True, label_visibility="collapsed")
-        overrides[m] = choice
-        winners[m], matches[m] = choice, (a, b)
+    def _spacer(colobj, h):
+        if h > 0:
+            colobj.markdown(f"<div style='height:{h}px'></div>", unsafe_allow_html=True)
+
+    def ko_card(colobj, m, a, b):
+        cur = overrides.get(m)
+        w = cur if cur in (a, b) else (a if wpi[a] >= wpi[b] else b)
+        winners[m], matches[m] = w, (a, b)
+        with colobj:
+            with st.container(border=True):
+                if st.button(a, key=f"fb_ko_{m}_a", use_container_width=True,
+                             type="primary" if w == a else "secondary"):
+                    overrides[m] = a; st.rerun()
+                if st.button(b, key=f"fb_ko_{m}_b", use_container_width=True,
+                             type="primary" if w == b else "secondary"):
+                    overrides[m] = b; st.rerun()
 
     order = {title: ms for title, ms in _BRACKET_COLUMNS}
-    st.markdown("**Dieciseisavos**")
-    gc = st.columns(2)
-    for n_, m in enumerate(order["Dieciseisavos"]):
-        with gc[n_ % 2]:
-            render_match(m, part(mc.R32[m][0]), part(mc.R32[m][1]))
-    for title, tree in [("Octavos", mc.R16), ("Cuartos", mc.QF), ("Semifinales", mc.SF), ("Final", mc.FINAL)]:
-        st.markdown(f"**{title}**")
-        for m in order[title]:
-            x, y = tree[m]
-            render_match(m, winners[x], winners[y])
+    bcols = st.columns(6)
+    for c, h in zip(bcols, ["Dieciseisavos", "Octavos", "Cuartos", "Semis", "Final", "Campeón"]):
+        c.markdown(f"**{h}**")
+    unit = 96  # altura aproximada de una cajita, para centrar cada ronda
+
+    def render_round(colobj, r, mlist, get_ab):
+        _spacer(colobj, int((2 ** r - 1) * unit / 2))
+        for k, m in enumerate(mlist):
+            a, b = get_ab(m)
+            ko_card(colobj, m, a, b)
+            if k < len(mlist) - 1:
+                _spacer(colobj, int((2 ** r - 1) * unit))
+
+    render_round(bcols[0], 0, order["Dieciseisavos"],
+                 lambda m: (part(mc.R32[m][0]), part(mc.R32[m][1])))
+    for idx, (title, tree) in enumerate(
+            [("Octavos", mc.R16), ("Cuartos", mc.QF), ("Semifinales", mc.SF), ("Final", mc.FINAL)], start=1):
+        render_round(bcols[idx], idx, order[title],
+                     lambda m, tr=tree: (winners[tr[m][0]], winners[tr[m][1]]))
 
     champ = winners[104]
-    st.success(f"🏆 Tu campeón: **{champ}**")
+    _spacer(bcols[5], int((2 ** 4 - 1) * unit / 2))
+    bcols[5].success(f"🏆 {champ}")
 
     # PASO 4 — probabilidad del pronóstico completo.
     if st.button("🔮 Calcular la probabilidad de mi cuadro", type="primary"):
