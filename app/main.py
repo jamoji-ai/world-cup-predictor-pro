@@ -69,6 +69,36 @@ def load_meta() -> dict | None:
         return None
 
 
+def _ago(iso: str) -> str | None:
+    """'hace 2 h' a partir de un timestamp ISO (UTC). None si no se puede parsear."""
+    from datetime import datetime, timezone
+    try:
+        t = datetime.fromisoformat(str(iso))
+    except (ValueError, TypeError):
+        return None
+    if t.tzinfo is None:
+        t = t.replace(tzinfo=timezone.utc)
+    mins = int((datetime.now(timezone.utc) - t).total_seconds() // 60)
+    if mins < 2:
+        return "hace un momento"
+    if mins < 60:
+        return f"hace {mins} min"
+    hours = mins // 60
+    if hours < 24:
+        return f"hace {hours} h"
+    return f"hace {hours // 24} d"
+
+
+def render_update_info() -> None:
+    """Muestra cuándo se actualizaron los datos y la cadencia automática."""
+    meta = load_meta()
+    if not meta:
+        return
+    ago = _ago(meta.get("generated"))
+    when = f"Datos actualizados {ago}." if ago else "Datos al día."
+    st.caption(f"🔄 {when} Se refrescan **solos cada 3 h** durante el Mundial.")
+
+
 def render_live_status(meta: dict | None) -> None:
     if not meta:
         return
@@ -143,6 +173,9 @@ def render_sidebar(using_real: bool) -> str:
             )
         else:
             st.caption("⚠️ Datos de ejemplo (aún no se ha generado la simulación).")
+        if using_real:
+            st.divider()
+            render_update_info()
     return section
 
 

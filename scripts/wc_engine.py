@@ -443,7 +443,8 @@ def main() -> int:
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(OUTPUT_PATH, index=False, encoding="utf-8")
     pd.DataFrame([{
-        "generated": date.today().isoformat(), "n_sims": df.attrs["n_sims"],
+        "generated": datetime.now(timezone.utc).isoformat(timespec="minutes"),
+        "n_sims": df.attrs["n_sims"],
         "n_played_groups": df.attrs["n_played_groups"], "n_groups_matches": df.attrs["n_groups_matches"],
     }]).to_csv(META_PATH, index=False, encoding="utf-8")
     _log(f"Guardado en {OUTPUT_PATH}")
