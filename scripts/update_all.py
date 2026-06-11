@@ -86,10 +86,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Pipeline completo del Mundial.")
     parser.add_argument("--sims", type=int, default=50000, help="Simulaciones oficiales (def. 50000).")
     parser.add_argument("--skip-download", action="store_true", help="No re-descargar fuentes.")
+    parser.add_argument("--skip-transfermarkt", action="store_true",
+                        help="Descargar todo menos Transfermarkt (valores cambian poco; ideal para el cron diario).")
     args = parser.parse_args()
 
     if not args.skip_download:
         for name, critical in DOWNLOADS:
+            if args.skip_transfermarkt and name == "download_transfermarkt.py":
+                _log("Saltando Transfermarkt (--skip-transfermarkt): se usa el CSV existente.")
+                continue
             if not run_script(name, critical) and critical:
                 return 1
     else:

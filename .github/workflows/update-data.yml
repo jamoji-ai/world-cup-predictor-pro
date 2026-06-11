@@ -1,0 +1,51 @@
+name: Actualizar datos del Mundial
+
+# Recalcula a diario el WPI y la simulación con los datos más recientes (Elo,
+# ranking FIFA, resultados de partidos) y commitea los CSV. Streamlit Community
+# Cloud redespliega solo al detectar el push.
+#
+# Transfermarkt NO se re-scrapea aquí (los valores de mercado cambian poco y el
+# scraping desde IPs de CI es lento/arriesgado): se usa el CSV ya versionado.
+# Para refrescar mercado, ejecutar localmente `python scripts/download_transfermarkt.py`.
+#
+# Requisito: en GitHub → Settings → Actions → General → Workflow permissions,
+# marcar "Read and write permissions" para que el bot pueda commitear.
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # cada día a las 06:00 UTC
+  workflow_dispatch: {}   # permite lanzarlo a mano desde la pestaña Actions
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Recalcular datos y simulación (sin Transfermarkt)
+        run: python scripts/update_all.py --skip-transfermarkt --sims 50000
+
+      - name: Commit y push si hay cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --staged --quiet; then
+            echo "Sin cambios en los datos; nada que commitear."
+          else
+            git commit -m "chore(data): actualización automática diaria [skip ci]"
+            git push
+          fi

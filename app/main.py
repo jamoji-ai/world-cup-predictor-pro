@@ -10,8 +10,10 @@ Ejecutar localmente:
 """
 from __future__ import annotations
 
+import urllib.parse
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -243,9 +245,13 @@ RADAR_LABELS = [
 def render_team_view(df: pd.DataFrame) -> None:
     st.title("Ficha de selección")
     names = df.sort_values("canonical_name")["canonical_name"].tolist()
-    default = int(df.index[df["canonical_name"] == df.iloc[0]["canonical_name"]][0])
-    team = st.selectbox("Elige una selección", names,
-                        index=names.index(df.iloc[0]["canonical_name"]))
+    # Deep-link: ?seleccion=España preselecciona ese equipo (enlaces compartibles).
+    preselect = st.query_params.get("seleccion")
+    default_idx = names.index(preselect) if preselect in names else \
+        names.index(df.iloc[0]["canonical_name"])
+    team = st.selectbox("Elige una selección", names, index=default_idx)
+    if st.query_params.get("seleccion") != team:
+        st.query_params["seleccion"] = team
     row = df[df["canonical_name"] == team].iloc[0]
 
     c1, c2, c3, c4 = st.columns(4)
@@ -284,6 +290,10 @@ def render_team_view(df: pd.DataFrame) -> None:
         fig2.update_layout(margin=dict(l=10, r=30, t=10, b=10), height=420,
                            xaxis_range=[0, 100], xaxis_title="", yaxis_title="")
         st.plotly_chart(fig2, use_container_width=True)
+
+    render_share(
+        f"{team} tiene un {pct(row['prob_campeon'])} de ganar el Mundial 2026 "
+        f"según el modelo WPI de World Cup Predictor Pro.", key=f"share_{team}")
 
 
 # --- Cuadro (bracket más probable) ------------------------------------------
@@ -583,6 +593,54 @@ def render_evolution(df: pd.DataFrame) -> None:
     st.plotly_chart(fig, use_container_width=True)
 
 
+def render_value_analysis(df: pd.DataFrame) -> None:
+    st.subheader("¿Quién rinde más (o menos) de lo que cuesta?")
+    st.caption("Comparamos la fuerza del equipo con el valor de su plantilla. Por "
+               "encima de la línea rinden más de lo que su valor sugiere; por debajo, "
+               "menos.")
+    d = df.dropna(subset=["market_value_total"]).copy()
+    if d.empty:
+        return
+    d["valor_m"] = d["market_value_total"] / 1e6
+    d["logv"] = np.log10(d["valor_m"])
+    # Recta de tendencia fuerza ~ log(valor); el residuo marca infra/sobrevalorado.
+    coef = np.polyfit(d["logv"], d["wpi"], 1)
+    d["esperado"] = np.polyval(coef, d["logv"])
+    d["residuo"] = d["wpi"] - d["esperado"]
+
+    fig = px.scatter(
+        d, x="valor_m", y="wpi", text="canonical_name", log_x=True,
+        color="residuo", color_continuous_scale="RdYlGn",
+        labels={"valor_m": "Valor de la plantilla (millones €)", "wpi": "Fuerza del equipo"},
+    )
+    xs = np.linspace(d["logv"].min(), d["logv"].max(), 50)
+    fig.add_scatter(x=10 ** xs, y=np.polyval(coef, xs), mode="lines",
+                    line=dict(dash="dash", color="#888"), name="Tendencia", showlegend=False)
+    fig.update_traces(textposition="top center", textfont_size=8, selector=dict(mode="markers+text"))
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), height=480, coloraxis_showscale=False)
+    st.plotly_chart(fig, use_container_width=True)
+
+    c1, c2 = st.columns(2)
+    best = d.sort_values("residuo", ascending=False).head(3)
+    worst = d.sort_values("residuo").head(3)
+    c1.markdown("**💚 Rinden por encima de su valor**")
+    for _, r in best.iterrows():
+        c1.markdown(f"- {r['canonical_name']} · €{r['valor_m']:.0f}M")
+    c2.markdown("**🔴 Rinden por debajo de su valor**")
+    for _, r in worst.iterrows():
+        c2.markdown(f"- {r['canonical_name']} · €{r['valor_m']:.0f}M")
+
+
+def render_share(text: str, key: str) -> None:
+    """Bloque de compartir: texto listo + botón a X. La URL a compartir es la del
+    navegador (las vistas usan query params para enlazar a una selección)."""
+    with st.expander("📣 Compartir este dato"):
+        st.code(text, language=None)
+        url = "https://twitter.com/intent/tweet?text=" + urllib.parse.quote(text)
+        st.link_button("Compartir en X (Twitter)", url)
+        st.caption("Para enlazar a esta vista, copia la URL de tu navegador.")
+
+
 def render_how_it_works() -> None:
     with st.expander("ℹ️ Cómo funciona el modelo (metodología)", expanded=False):
         st.markdown(
@@ -667,7 +725,14 @@ def main() -> None:
         st.divider()
         render_journey(df)
         st.divider()
+        render_value_analysis(df)
+        st.divider()
         render_evolution(df)
+        fav = df.iloc[0]
+        render_share(
+            f"El favorito al Mundial 2026 es {fav['canonical_name']} con un "
+            f"{pct(fav['prob_campeon'])} de ganarlo, según el modelo WPI de "
+            f"World Cup Predictor Pro.", key="share_fav")
 
     st.divider()
     render_how_it_works()
