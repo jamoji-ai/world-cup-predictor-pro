@@ -448,11 +448,14 @@ def wpi_map() -> dict:
 
 def render_simulator(df: pd.DataFrame) -> None:
     st.title("Juega tú con el Mundial")
-    tab1, tab2 = st.tabs(["🎯 ¿Qué necesita mi selección?", "🎮 Simulador libre"])
+    tab1, tab2, tab3 = st.tabs(
+        ["🎯 ¿Qué necesita mi selección?", "🎮 Simulador libre", "🔮 Rellena tu cuadro"])
     with tab1:
         _render_what_if(df)
     with tab2:
         _render_free_sim(df)
+    with tab3:
+        _safe(_render_fill_bracket, df)
 
 
 def _render_what_if(df: pd.DataFrame) -> None:
@@ -542,6 +545,138 @@ def _render_free_sim(df: pd.DataFrame) -> None:
         )
     else:
         st.info("Añade al menos un resultado para ver el efecto.")
+
+
+# --- Rellena tu cuadro (predice el Mundial entero) --------------------------
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def group_probs() -> dict:
+    """Distribución de posiciones por grupo (para la probabilidad del pronóstico)."""
+    return _mc().group_position_probs(20000, seed=11)
+
+
+def _format_one_in(one_in: float) -> str:
+    if one_in < 1_000:
+        return f"1 entre {one_in:,.0f}".replace(",", ".")
+    if one_in < 1_000_000:
+        return f"1 entre {one_in/1e3:.1f} mil".replace(".", ",")
+    if one_in < 1_000_000_000:
+        return f"1 entre {one_in/1e6:.1f} millones".replace(".", ",")
+    if one_in < 1e12:
+        return f"1 entre {one_in/1e9:.1f} mil millones".replace(".", ",")
+    return f"1 entre {one_in:.1e}".replace(".", ",")
+
+
+def _render_fill_bracket(df: pd.DataFrame) -> None:
+    st.caption("Predice el Mundial **entero**: quién pasa de cada grupo y quién gana "
+               "cada cruce hasta la final. Al terminar te decimos la probabilidad real "
+               "de que ocurra tu cuadro… y lo podrás compartir.")
+    mc = _mc()
+    wpi = dict(zip(df["canonical_name"], df["wpi"]))
+    groups = {L: sorted(list(members), key=lambda t: -wpi.get(t, 0))
+              for L, members in mc.OFFICIAL_GROUPS.items()}
+
+    # PASO 1 — 1º y 2º de cada grupo.
+    st.subheader("1) Quién pasa de cada grupo")
+    first, second = {}, {}
+    cols = st.columns(3)
+    for i, L in enumerate(mc.LETTERS):
+        with cols[i % 3]:
+            teams = groups[L]
+            f = st.selectbox(f"Grupo {L} · 1º", teams, key=f"fb_f_{L}")
+            opts2 = [t for t in teams if t != f]
+            s = st.selectbox(f"Grupo {L} · 2º", opts2, key=f"fb_s_{L}")
+            first[L], second[L] = f, s
+
+    # PASO 2 — 8 mejores terceros (autocompletados, editables).
+    st.subheader("2) Los 8 mejores terceros")
+    remaining = [(t, L) for L in mc.LETTERS for t in groups[L] if t not in (first[L], second[L])]
+    team2group = {t: L for t, L in remaining}
+    stronger = {}
+    for t, L in remaining:
+        if L not in stronger or wpi[t] > wpi[stronger[L]]:
+            stronger[L] = t
+    default8 = sorted(stronger.values(), key=lambda t: -wpi[t])[:8]
+    chosen = st.multiselect(
+        "Elige 8, de 8 grupos distintos (máx. 1 por grupo)",
+        [t for t, _ in remaining], default=default8, max_selections=8, key="fb_thirds")
+    if len(chosen) != 8 or len({team2group[t] for t in chosen}) != 8:
+        st.warning("Elige exactamente **8 terceros de 8 grupos distintos** para continuar.")
+        return
+
+    third_group = {team2group[t]: t for t in chosen}
+    mask = sum(1 << mc.L2I[L] for L in third_group)
+    slot_groups = mc.THIRDS_TABLE[mask]
+    slot_team = {slot: third_group[mc.LETTERS[slot_groups[k]]] for k, slot in enumerate(mc.THIRD_SLOTS)}
+
+    def part(spec):
+        kind, ref = spec
+        return first[ref] if kind == "W" else second[ref] if kind == "R" else slot_team[ref]
+
+    # PASO 3 — eliminatoria interactiva (gana el favorito por defecto; cámbialo).
+    st.subheader("3) Tu cuadro de eliminatorias")
+    st.caption("Por defecto pasa el favorito en cada cruce. Pulsa para cambiar quién avanza.")
+    overrides = st.session_state.setdefault("fb_ko", {})
+    winners, matches = {}, {}
+
+    def render_match(m, a, b):
+        key = f"fb_ko_{m}"
+        if key in st.session_state and st.session_state[key] not in (a, b):
+            del st.session_state[key]
+        default = overrides.get(m) if overrides.get(m) in (a, b) else (a if wpi[a] >= wpi[b] else b)
+        choice = st.radio(f"{a} — {b}", [a, b], index=[a, b].index(default),
+                          key=key, horizontal=True, label_visibility="collapsed")
+        overrides[m] = choice
+        winners[m], matches[m] = choice, (a, b)
+
+    order = {title: ms for title, ms in _BRACKET_COLUMNS}
+    st.markdown("**Dieciseisavos**")
+    gc = st.columns(2)
+    for n_, m in enumerate(order["Dieciseisavos"]):
+        with gc[n_ % 2]:
+            render_match(m, part(mc.R32[m][0]), part(mc.R32[m][1]))
+    for title, tree in [("Octavos", mc.R16), ("Cuartos", mc.QF), ("Semifinales", mc.SF), ("Final", mc.FINAL)]:
+        st.markdown(f"**{title}**")
+        for m in order[title]:
+            x, y = tree[m]
+            render_match(m, winners[x], winners[y])
+
+    champ = winners[104]
+    st.success(f"🏆 Tu campeón: **{champ}**")
+
+    # PASO 4 — probabilidad del pronóstico completo.
+    if st.button("🔮 Calcular la probabilidad de mi cuadro", type="primary"):
+        gpp = group_probs()
+        gp = 1.0
+        thirds_groups = set(third_group)
+        for L in mc.LETTERS:
+            d = gpp[L]; teams = d["teams"]
+            p1, p2 = teams.index(first[L]), teams.index(second[L])
+            if L in thirds_groups:
+                p3 = teams.index(third_group[L])
+                gp *= float(d["triple"][p1 * 16 + p2 * 4 + p3])
+            else:
+                gp *= float(d["pair"][p1 * 4 + p2])
+        kp = 1.0
+        for m, (a, b) in matches.items():
+            w = winners[m]; loser = b if w == a else a
+            kp *= mc.win_probability(wpi[w], wpi[loser])
+        total = gp * kp
+
+        if total <= 0:
+            st.error("Tu combinación es tan improbable que ni en 20.000 simulaciones aparece. "
+                     "¡Eso sí que sería una sorpresa histórica!")
+            return
+        one_in = 1.0 / total
+        st.metric("Probabilidad de que tu cuadro entero acierte",
+                  f"{total*100:.2g}%", f"≈ {_format_one_in(one_in)}")
+        st.caption("Combina la probabilidad de cada grupo (simulando cada grupo por separado) "
+                   "con la de cada cruce de la eliminatoria. La colocación exacta de los "
+                   "terceros es una aproximación.")
+        render_share(
+            f"He predicho a {champ} campeón del Mundial 2026. Mi cuadro tiene "
+            f"{_format_one_in(one_in)} de acertar entero. ¿Mejoras mi marca? "
+            f"World Cup Predictor Pro.", key="share_bracket")
 
 
 # --- Detector de sorpresas (⚡) ---------------------------------------------

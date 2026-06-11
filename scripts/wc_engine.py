@@ -35,6 +35,10 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import wpi as wpi_mod  # noqa: E402  (win_probability, expected_goals)
 
+# Re-exportadas para uso desde la app (mc.win_probability / mc.expected_goals).
+win_probability = wpi_mod.win_probability
+expected_goals = wpi_mod.expected_goals
+
 ROOT = Path(__file__).resolve().parents[1]
 WPI_CSV = ROOT / "data" / "processed" / "wpi_scores.csv"
 MASTER_CSV = ROOT / "data" / "processed" / "teams_master.csv"
@@ -320,6 +324,36 @@ def _knockout(t, winners, runners, thirds, thirds_key, n, rng):
         "final": np.stack([win[m] for m in SF], axis=1),      # -> final
         "champion": win[104][:, None],                        # campeón
     }
+
+
+# --- Probabilidades por grupo (para "rellena tu cuadro") ---------------------
+
+def group_position_probs(n: int = 20000, seed: int | None = None) -> dict:
+    """Distribución de posiciones finales por grupo, simulando la fase de grupos.
+
+    Para cada grupo (A..L) devuelve:
+      - teams: las 4 selecciones del grupo, en orden fijo.
+      - pair:   array (16,) con P(1º=i, 2º=j) indexado por i*4+j (i,j = índice en teams).
+      - triple: array (64,) con P(1º=i, 2º=j, 3º=k) indexado por i*16+j*4+k.
+    Permite calcular la probabilidad de un pronóstico de grupos sin depender de la
+    simulación global (donde una combinación exacta es demasiado rara).
+    """
+    t = load_tournament()
+    rng = np.random.default_rng(seed)
+    key = simulate_groups(t, n, rng)  # (n, 48)
+    out = {}
+    for li, g in enumerate(t["groups"]):
+        garr = np.array(g)
+        sub = key[:, garr]                       # (n, 4)
+        order = np.argsort(-sub, axis=1)         # posiciones (0=1º) -> índice en garr
+        first, second, third = order[:, 0], order[:, 1], order[:, 2]
+        pair = np.bincount(first * 4 + second, minlength=16) / n
+        triple = np.bincount(first * 16 + second * 4 + third, minlength=64) / n
+        out[LETTERS[li]] = {
+            "teams": [t["teams"][i] for i in garr],
+            "pair": pair, "triple": triple,
+        }
+    return out
 
 
 # --- Orquestación de una simulación completa ---------------------------------
