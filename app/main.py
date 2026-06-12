@@ -90,13 +90,14 @@ def _ago(iso: str) -> str | None:
 
 
 def render_update_info() -> None:
-    """Muestra cuándo se actualizaron los datos y la cadencia automática."""
+    """Muestra cuándo se comprobaron los datos por última vez y cómo se actualizan."""
     meta = load_meta()
     if not meta:
         return
     ago = _ago(meta.get("generated"))
-    when = f"Datos actualizados {ago}." if ago else "Datos al día."
-    st.caption(f"🔄 {when} Se refrescan **solos cada 3 h** durante el Mundial.")
+    when = f"Última comprobación de datos: **{ago}**." if ago else "Datos al día."
+    st.caption(f"🔄 {when} El sistema revisa cada pocas horas y se actualiza solo en "
+               "cuanto la fuente publica resultados nuevos.")
 
 
 def render_live_status(meta: dict | None) -> None:
@@ -961,6 +962,7 @@ def main() -> None:
     else:  # Favoritos
         render_hero(df)
         render_live_status(load_meta())
+        render_update_info()
         st.divider()
         col_a, col_b = st.columns([3, 2])
         with col_a:
