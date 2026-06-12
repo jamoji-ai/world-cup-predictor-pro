@@ -24,24 +24,24 @@ rank,elo_code,team_name,elo_rating
 23,AT,Austria,1830
 24,MA,Morocco,1827
 25,CA,Canada,1788
-26,SQ,Scotland,1782
-27,UA,Ukraine,1780
-28,AU,Australia,1777
-29,DZ,Algeria,1772
-29,IR,Iran,1772
-29,RU,Russia,1772
-32,NG,Nigeria,1767
-33,KR,South Korea,1758
+26,KR,South Korea,1786
+27,SQ,Scotland,1782
+28,UA,Ukraine,1780
+29,AU,Australia,1777
+30,DZ,Algeria,1772
+30,IR,Iran,1772
+30,RU,Russia,1772
+33,NG,Nigeria,1767
 34,GR,Greece,1744
-35,CZ,Czechia,1740
-36,RS,Serbia,1734
-37,VE,Venezuela,1733
-38,PA,Panama,1730
-39,US,United States,1726
-40,CL,Chile,1717
-41,KO,Kosovo,1715
-42,UZ,Uzbekistan,1714
-43,SE,Sweden,1712
+35,RS,Serbia,1734
+36,VE,Venezuela,1733
+37,PA,Panama,1730
+38,US,United States,1726
+39,CL,Chile,1717
+40,KO,Kosovo,1715
+41,UZ,Uzbekistan,1714
+42,CZ,Czechia,1712
+42,SE,Sweden,1712
 44,HU,Hungary,1710
 44,PL,Poland,1710
 46,PE,Peru,1700
