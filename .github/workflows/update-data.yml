@@ -49,6 +49,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "Sin cambios en los datos; nada que commitear."
           else
-            git commit -m "chore(data): actualización automática de datos [skip ci]"
+            git commit -m "chore(data): actualización automática de datos"
             git push
           fi
