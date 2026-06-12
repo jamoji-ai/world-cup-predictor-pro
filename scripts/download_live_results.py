@@ -29,23 +29,10 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 MAPPING_CSV = ROOT / "data" / "country_name_mapping.csv"
+ALIASES_CSV = ROOT / "data" / "name_aliases.csv"
 OUTPUT_PATH = ROOT / "data" / "raw" / "live_results.csv"
 
 API_URL = "https://api.football-data.org/v4/competitions/WC/matches?status=FINISHED"
-
-# Alias de nombres de football-data.org -> nombre canónico (para los que no casan
-# directamente por canonical_name/fifa_name). Se comparan ya normalizados.
-ALIASES = {
-    "turkiye": "Turkey", "turkey": "Turkey",
-    "czechia": "Czech Republic", "czech republic": "Czech Republic",
-    "korea republic": "South Korea", "south korea": "South Korea",
-    "usa": "United States", "united states": "United States",
-    "cote d'ivoire": "Ivory Coast", "ivory coast": "Ivory Coast",
-    "dr congo": "DR Congo", "congo dr": "DR Congo",
-    "democratic republic of the congo": "DR Congo", "democratic republic of congo": "DR Congo",
-    "cabo verde": "Cape Verde", "cape verde": "Cape Verde",
-    "curacao": "Curaçao",
-}
 
 
 def _log(msg: str) -> None:
@@ -60,14 +47,21 @@ def _norm(s: str) -> str:
 
 
 def build_name_lookup() -> dict[str, str]:
-    """Normalizado -> nombre canónico, desde el mapping + alias."""
+    """Normalizado -> nombre canónico. Combina el mapping (canónico + nombre FIFA)
+    con el diccionario editable data/name_aliases.csv (source_name -> canonical)."""
     mp = pd.read_csv(MAPPING_CSV)
     lookup = {}
     for _, r in mp.iterrows():
         canon = r["canonical_name"]
         lookup[_norm(canon)] = canon
         lookup[_norm(r["fifa_name"])] = canon
-    lookup.update({k: v for k, v in ALIASES.items()})
+    if ALIASES_CSV.exists():
+        try:
+            al = pd.read_csv(ALIASES_CSV)
+            for _, r in al.iterrows():
+                lookup[_norm(r["source_name"])] = r["canonical_name"]
+        except Exception as err:  # noqa: BLE001
+            _log(f"AVISO: no se pudo leer {ALIASES_CSV.name}: {err}")
     return lookup
 
 
