@@ -37,6 +37,7 @@ DOWNLOADS = [
     ("download_elo.py", False),
     ("download_fifa_ranking.py", False),
     ("download_matches_history.py", False),
+    ("download_live_results.py", False),   # resultados en vivo (football-data.org)
     ("download_transfermarkt.py", False),
 ]
 TRANSFORMS = [

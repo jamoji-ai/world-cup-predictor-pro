@@ -195,6 +195,30 @@ def load_tournament() -> dict:
         fixtures.append((idx[r["home_team"]], idx[r["away_team"]], home_adv,
                          int(sh) if played else None, int(sa) if played else None))
 
+    # Overlay de resultados EN VIVO (football-data.org) si existen: tienen
+    # prioridad sobre la fuente histórica y cuentan como partidos jugados.
+    live_path = ROOT / "data" / "raw" / "live_results.csv"
+    if live_path.exists():
+        try:
+            live = pd.read_csv(live_path)
+            live_map = {}
+            for _, lr in live.iterrows():
+                h, a = lr["home_team"], lr["away_team"]
+                if h in idx and a in idx:
+                    live_map[frozenset((idx[h], idx[a]))] = (idx[h], int(lr["home_score"]), int(lr["away_score"]))
+            if live_map:
+                merged = []
+                for ih, ia, home_adv, sh, sa in fixtures:
+                    key = frozenset((ih, ia))
+                    if key in live_map:
+                        ref, gh, ga = live_map[key]
+                        sh, sa = (gh, ga) if ih == ref else (ga, gh)
+                    merged.append((ih, ia, home_adv, sh, sa))
+                fixtures = merged
+        except Exception:  # noqa: BLE001 - un CSV en vivo malformado no debe romper el modelo
+            pass
+    n_played = sum(1 for f in fixtures if f[3] is not None)
+
     return {
         "teams": teams, "wpi": wpi, "groups": groups_by_letter, "team_letter": team_letter,
         "fixtures": fixtures, "n_played_groups": n_played, "n_groups_matches": len(fixtures),
