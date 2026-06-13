@@ -20,23 +20,23 @@ rank,elo_code,team_name,elo_rating
 19,DK,Denmark,1869
 19,IT,Italy,1869
 21,SN,Senegal,1860
-22,PY,Paraguay,1834
-23,AT,Austria,1830
-24,MA,Morocco,1827
-25,KR,South Korea,1786
-26,SQ,Scotland,1782
-27,UA,Ukraine,1780
-28,AU,Australia,1777
-29,DZ,Algeria,1772
-29,IR,Iran,1772
-29,RU,Russia,1772
-32,CA,Canada,1767
-32,NG,Nigeria,1767
-34,GR,Greece,1744
-35,RS,Serbia,1734
-36,VE,Venezuela,1733
-37,PA,Panama,1730
-38,US,United States,1726
+22,AT,Austria,1830
+23,MA,Morocco,1827
+24,KR,South Korea,1786
+25,SQ,Scotland,1782
+26,PY,Paraguay,1780
+26,UA,Ukraine,1780
+26,US,United States,1780
+29,AU,Australia,1777
+30,DZ,Algeria,1772
+30,IR,Iran,1772
+30,RU,Russia,1772
+33,CA,Canada,1767
+33,NG,Nigeria,1767
+35,GR,Greece,1744
+36,RS,Serbia,1734
+37,VE,Venezuela,1733
+38,PA,Panama,1730
 39,CL,Chile,1717
 40,KO,Kosovo,1715
 41,UZ,Uzbekistan,1714
