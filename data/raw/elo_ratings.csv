@@ -1,5 +1,5 @@
 rank,elo_code,team_name,elo_rating
-1,ES,Spain,2157
+1,ES,Spain,2129
 2,AR,Argentina,2115
 3,FR,France,2063
 4,EN,England,2024
@@ -62,11 +62,11 @@ rank,elo_code,team_name,elo_rating
 61,CM,Cameroon,1614
 62,CR,Costa Rica,1608
 63,IQ,Iraq,1607
-64,EI,Northern Ireland,1605
-65,NM,North Macedonia,1589
-66,ML,Mali,1588
-67,TN,Tunisia,1585
-68,CV,Cape Verde,1578
+64,CV,Cape Verde,1606
+65,EI,Northern Ireland,1605
+66,NM,North Macedonia,1589
+67,ML,Mali,1588
+68,TN,Tunisia,1585
 69,SA,Saudi Arabia,1576
 70,HN,Honduras,1570
 71,IS,Iceland,1568
