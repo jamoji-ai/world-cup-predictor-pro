@@ -1,6 +1,6 @@
 name: Actualizar datos del Mundial
 
-# Recalcula cada 3 horas el WPI y la simulación con los datos más recientes (Elo,
+# Recalcula cada hora el WPI y la simulación con los datos más recientes (Elo,
 # ranking FIFA, resultados de partidos) y commitea los CSV SOLO si han cambiado.
 # Streamlit Community Cloud redespliega solo al detectar el push. La simulación
 # usa semilla fija, así que sin datos nuevos no hay cambios y no se commitea.
@@ -14,7 +14,9 @@ name: Actualizar datos del Mundial
 
 on:
   schedule:
-    - cron: "0 */3 * * *"  # cada 3 horas (refleja antes los resultados de la fuente)
+    # Cada hora. GitHub retrasa/salta tareas programadas (best-effort), así que
+    # programar a menudo reduce los huecos efectivos durante el Mundial.
+    - cron: "0 * * * *"
   workflow_dispatch: {}    # permite lanzarlo a mano desde la pestaña Actions
 
 permissions:
