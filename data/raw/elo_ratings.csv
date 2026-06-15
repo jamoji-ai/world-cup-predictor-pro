@@ -6,12 +6,12 @@ rank,elo_code,team_name,elo_rating
 5,PT,Portugal,1989
 6,CO,Colombia,1982
 7,BR,Brazil,1978
-8,NL,Netherlands,1948
-9,EC,Ecuador,1938
-10,DE,Germany,1932
+8,NL,Netherlands,1944
+9,DE,Germany,1939
+10,EC,Ecuador,1938
 11,NO,Norway,1914
 12,HR,Croatia,1912
-13,JP,Japan,1906
+13,JP,Japan,1910
 14,BE,Belgium,1894
 15,UY,Uruguay,1892
 16,MX,Mexico,1881
@@ -90,9 +90,9 @@ rank,elo_code,team_name,elo_rating
 89,LU,Luxembourg,1450
 90,QA,Qatar,1447
 91,NS,Northern Cyprus,1442
-92,CW,CuraÃ§ao,1434
-93,SR,Suriname,1431
-94,KZ,Kazakhstan,1428
+92,SR,Suriname,1431
+93,KZ,Kazakhstan,1428
+94,CW,CuraÃ§ao,1427
 95,CN,China,1424
 95,KD,Kurdistan,1424
 97,LY,Libya,1420
