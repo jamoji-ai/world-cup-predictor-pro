@@ -29,10 +29,10 @@ rank,elo_code,team_name,elo_rating
 27,UA,Ukraine,1780
 27,US,United States,1780
 30,DZ,Algeria,1772
-30,IR,Iran,1772
 30,RU,Russia,1772
-33,CA,Canada,1767
-33,NG,Nigeria,1767
+32,CA,Canada,1767
+32,NG,Nigeria,1767
+34,IR,Iran,1756
 35,SE,Sweden,1755
 36,GR,Greece,1744
 37,CI,Ivory Coast,1743
@@ -68,9 +68,9 @@ rank,elo_code,team_name,elo_rating
 67,NM,North Macedonia,1589
 68,ML,Mali,1588
 69,TN,Tunisia,1585
-70,HN,Honduras,1570
-71,IS,Iceland,1568
-72,NZ,New Zealand,1562
+70,NZ,New Zealand,1578
+71,HN,Honduras,1570
+72,IS,Iceland,1568
 73,AO,Angola,1542
 74,AE,United Arab Emirates,1540
 75,FI,Finland,1536
