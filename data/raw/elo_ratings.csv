@@ -11,10 +11,10 @@ rank,elo_code,team_name,elo_rating
 10,NO,Norway,1914
 11,HR,Croatia,1912
 12,JP,Japan,1910
-13,UY,Uruguay,1892
-14,EC,Ecuador,1890
-15,MX,Mexico,1881
-16,BE,Belgium,1879
+13,EC,Ecuador,1890
+14,MX,Mexico,1881
+15,BE,Belgium,1879
+16,UY,Uruguay,1870
 17,DK,Denmark,1869
 17,IT,Italy,1869
 19,CH,Switzerland,1865
@@ -64,10 +64,10 @@ rank,elo_code,team_name,elo_rating
 63,IQ,Iraq,1607
 64,CV,Cape Verde,1606
 65,EI,Northern Ireland,1605
-66,NM,North Macedonia,1589
-67,ML,Mali,1588
-68,TN,Tunisia,1585
-69,SA,Saudi Arabia,1576
+66,SA,Saudi Arabia,1598
+67,NM,North Macedonia,1589
+68,ML,Mali,1588
+69,TN,Tunisia,1585
 70,HN,Honduras,1570
 71,IS,Iceland,1568
 72,NZ,New Zealand,1562
