@@ -2,17 +2,17 @@ rank,elo_code,team_name,elo_rating
 1,ES,Spain,2129
 2,AR,Argentina,2128
 3,FR,France,2084
-4,EN,England,2024
-5,PT,Portugal,1989
-6,CO,Colombia,1982
-7,BR,Brazil,1978
+4,EN,England,2055
+5,CO,Colombia,1982
+6,BR,Brazil,1978
+7,PT,Portugal,1967
 8,NL,Netherlands,1944
 9,DE,Germany,1939
 10,NO,Norway,1929
-11,HR,Croatia,1912
-12,JP,Japan,1910
-13,EC,Ecuador,1890
-14,MX,Mexico,1881
+11,JP,Japan,1910
+12,EC,Ecuador,1890
+13,HR,Croatia,1881
+13,MX,Mexico,1881
 15,BE,Belgium,1879
 16,UY,Uruguay,1870
 17,DK,Denmark,1869
@@ -50,10 +50,10 @@ rank,elo_code,team_name,elo_rating
 49,IE,Ireland,1699
 50,WA,Wales,1682
 50,SI,Slovenia,1682
-52,SK,Slovakia,1667
-53,GE,Georgia,1654
-54,JO,Jordan,1653
-55,CD,DR Congo,1652
+52,CD,DR Congo,1674
+53,SK,Slovakia,1667
+54,GE,Georgia,1654
+55,JO,Jordan,1653
 56,IL,Israel,1647
 57,RO,Romania,1639
 58,BO,Bolivia,1621
