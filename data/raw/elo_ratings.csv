@@ -1,14 +1,14 @@
 rank,elo_code,team_name,elo_rating
 1,ES,Spain,2129
-2,AR,Argentina,2115
-3,FR,France,2063
+2,AR,Argentina,2128
+3,FR,France,2084
 4,EN,England,2024
 5,PT,Portugal,1989
 6,CO,Colombia,1982
 7,BR,Brazil,1978
 8,NL,Netherlands,1944
 9,DE,Germany,1939
-10,NO,Norway,1914
+10,NO,Norway,1929
 11,HR,Croatia,1912
 12,JP,Japan,1910
 13,EC,Ecuador,1890
@@ -18,20 +18,20 @@ rank,elo_code,team_name,elo_rating
 17,DK,Denmark,1869
 17,IT,Italy,1869
 19,CH,Switzerland,1865
-20,SN,Senegal,1860
+20,AT,Austria,1857
 21,TR,Turkey,1849
 22,MA,Morocco,1840
 23,AU,Australia,1839
-24,AT,Austria,1830
+23,SN,Senegal,1839
 25,SQ,Scotland,1794
 26,KR,South Korea,1786
 27,PY,Paraguay,1780
 27,UA,Ukraine,1780
 27,US,United States,1780
-30,DZ,Algeria,1772
 30,RU,Russia,1772
-32,CA,Canada,1767
-32,NG,Nigeria,1767
+31,CA,Canada,1767
+31,NG,Nigeria,1767
+33,DZ,Algeria,1759
 34,IR,Iran,1756
 35,SE,Sweden,1755
 36,GR,Greece,1744
@@ -50,9 +50,9 @@ rank,elo_code,team_name,elo_rating
 49,IE,Ireland,1699
 50,WA,Wales,1682
 50,SI,Slovenia,1682
-52,JO,Jordan,1680
-53,SK,Slovakia,1667
-54,GE,Georgia,1654
+52,SK,Slovakia,1667
+53,GE,Georgia,1654
+54,JO,Jordan,1653
 55,CD,DR Congo,1652
 56,IL,Israel,1647
 57,RO,Romania,1639
@@ -61,10 +61,10 @@ rank,elo_code,team_name,elo_rating
 59,AL,Albania,1616
 61,CM,Cameroon,1614
 62,CR,Costa Rica,1608
-63,IQ,Iraq,1607
-64,CV,Cape Verde,1606
-65,EI,Northern Ireland,1605
-66,SA,Saudi Arabia,1598
+63,CV,Cape Verde,1606
+64,EI,Northern Ireland,1605
+65,SA,Saudi Arabia,1598
+66,IQ,Iraq,1592
 67,NM,North Macedonia,1589
 68,ML,Mali,1588
 69,TN,Tunisia,1585
