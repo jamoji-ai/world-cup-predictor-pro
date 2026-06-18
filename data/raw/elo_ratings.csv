@@ -3,7 +3,7 @@ rank,elo_code,team_name,elo_rating
 2,AR,Argentina,2128
 3,FR,France,2084
 4,EN,England,2055
-5,CO,Colombia,1982
+5,CO,Colombia,1998
 6,BR,Brazil,1978
 7,PT,Portugal,1967
 8,NL,Netherlands,1944
@@ -38,16 +38,16 @@ rank,elo_code,team_name,elo_rating
 37,CI,Ivory Coast,1743
 38,RS,Serbia,1734
 39,VE,Venezuela,1733
-40,PA,Panama,1730
-41,CL,Chile,1717
-42,KO,Kosovo,1715
-43,UZ,Uzbekistan,1714
-44,CZ,Czechia,1712
-45,EG,Egypt,1711
-46,HU,Hungary,1710
-46,PL,Poland,1710
-48,PE,Peru,1700
-49,IE,Ireland,1699
+40,CL,Chile,1717
+41,KO,Kosovo,1715
+42,CZ,Czechia,1712
+43,EG,Egypt,1711
+44,HU,Hungary,1710
+44,PL,Poland,1710
+46,PE,Peru,1700
+47,IE,Ireland,1699
+48,UZ,Uzbekistan,1698
+49,PA,Panama,1683
 50,WA,Wales,1682
 50,SI,Slovenia,1682
 52,CD,DR Congo,1674
@@ -71,15 +71,15 @@ rank,elo_code,team_name,elo_rating
 70,NZ,New Zealand,1578
 71,HN,Honduras,1570
 72,IS,Iceland,1568
-73,AO,Angola,1542
-74,AE,United Arab Emirates,1540
-75,FI,Finland,1536
-75,HT,Haiti,1536
-77,BF,Burkina Faso,1529
-78,JM,Jamaica,1527
-79,BY,Belarus,1522
-80,ZA,South Africa,1511
-81,GH,Ghana,1510
+73,GH,Ghana,1557
+74,AO,Angola,1542
+75,AE,United Arab Emirates,1540
+76,FI,Finland,1536
+76,HT,Haiti,1536
+78,BF,Burkina Faso,1529
+79,JM,Jamaica,1527
+80,BY,Belarus,1522
+81,ZA,South Africa,1511
 82,GT,Guatemala,1504
 83,OM,Oman,1480
 84,SY,Syria,1479
