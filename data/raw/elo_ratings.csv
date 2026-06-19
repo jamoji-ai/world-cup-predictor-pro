@@ -43,8 +43,8 @@ rank,elo_code,team_name,elo_rating
 42,EG,Egypt,1711
 43,HU,Hungary,1710
 43,PL,Poland,1710
-45,PE,Peru,1700
-46,IE,Ireland,1699
+45,PE,Peru,1699
+45,IE,Ireland,1699
 47,UZ,Uzbekistan,1698
 48,CZ,Czechia,1696
 49,PA,Panama,1683
@@ -60,8 +60,8 @@ rank,elo_code,team_name,elo_rating
 59,AL,Albania,1616
 60,CM,Cameroon,1614
 61,CR,Costa Rica,1608
+62,EI,Northern Ireland,1606
 62,CV,Cape Verde,1606
-63,EI,Northern Ireland,1605
 64,SA,Saudi Arabia,1598
 65,BA,Bosnia and Herzegovina,1596
 66,IQ,Iraq,1592
@@ -81,8 +81,8 @@ rank,elo_code,team_name,elo_rating
 79,JM,Jamaica,1527
 81,BY,Belarus,1522
 82,GT,Guatemala,1504
-83,OM,Oman,1480
-84,SY,Syria,1479
+83,SY,Syria,1479
+83,OM,Oman,1479
 85,PS,Palestine,1465
 86,GN,Guinea,1463
 87,ME,Montenegro,1461
@@ -123,7 +123,7 @@ rank,elo_code,team_name,elo_rating
 121,MZ,Mozambique,1342
 123,SL,Sierra Leone,1341
 124,GP,Guadeloupe,1338
-125,RW,Rwanda,1336
+125,RW,Rwanda,1337
 126,NI,Nicaragua,1333
 127,KW,Kuwait,1332
 128,MR,Mauritania,1329
@@ -166,8 +166,8 @@ rank,elo_code,team_name,elo_rating
 165,PR,Puerto Rico,1135
 167,SG,Singapore,1134
 168,IN,India,1128
-169,VU,Vanuatu,1118
-170,BM,Bermuda,1117
+169,BM,Bermuda,1117
+169,VU,Vanuatu,1117
 171,SS,South Sudan,1109
 172,FJ,Fiji,1104
 173,HK,Hong Kong,1101
@@ -185,8 +185,8 @@ rank,elo_code,team_name,elo_rating
 185,LC,Saint Lucia,1003
 186,EH,Western Sahara,996
 187,MM,Myanmar,984
+188,AW,Aruba,979
 188,SO,Somalia,979
-189,AW,Aruba,978
 190,SX,Sint Maarten,975
 191,MS,Montserrat,972
 192,AF,Afghanistan,961
