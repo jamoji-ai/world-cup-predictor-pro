@@ -21,12 +21,12 @@ rank,elo_code,team_name,elo_rating
 20,AT,Austria,1857
 21,TR,Turkey,1849
 22,MA,Morocco,1840
-23,AU,Australia,1839
 23,SN,Senegal,1839
-25,SQ,Scotland,1794
-26,PY,Paraguay,1780
-26,UA,Ukraine,1780
-26,US,United States,1780
+24,US,United States,1820
+25,AU,Australia,1799
+26,SQ,Scotland,1794
+27,PY,Paraguay,1780
+27,UA,Ukraine,1780
 29,CA,Canada,1777
 30,RU,Russia,1772
 31,KR,South Korea,1771
