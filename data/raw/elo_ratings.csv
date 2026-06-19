@@ -28,9 +28,9 @@ rank,elo_code,team_name,elo_rating
 27,PY,Paraguay,1780
 27,UA,Ukraine,1780
 27,US,United States,1780
-30,RU,Russia,1772
-31,CA,Canada,1767
-31,NG,Nigeria,1767
+30,CA,Canada,1777
+31,RU,Russia,1772
+32,NG,Nigeria,1767
 33,DZ,Algeria,1759
 34,IR,Iran,1756
 35,SE,Sweden,1755
@@ -88,8 +88,8 @@ rank,elo_code,team_name,elo_rating
 87,ME,Montenegro,1461
 88,BG,Bulgaria,1458
 89,LU,Luxembourg,1450
-90,QA,Qatar,1447
-91,NS,Northern Cyprus,1442
+90,NS,Northern Cyprus,1442
+91,QA,Qatar,1437
 92,SR,Suriname,1431
 93,KZ,Kazakhstan,1428
 94,CW,CuraÃ§ao,1427
