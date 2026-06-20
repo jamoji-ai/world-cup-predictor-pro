@@ -18,18 +18,18 @@ rank,elo_code,team_name,elo_rating
 17,UY,Uruguay,1870
 18,DK,Denmark,1869
 18,IT,Italy,1869
-20,AT,Austria,1857
-21,TR,Turkey,1849
-22,MA,Morocco,1840
+20,MA,Morocco,1866
+21,AT,Austria,1857
+22,TR,Turkey,1849
 23,SN,Senegal,1839
 24,US,United States,1820
 25,AU,Australia,1799
-26,SQ,Scotland,1794
-27,PY,Paraguay,1780
-27,UA,Ukraine,1780
-29,CA,Canada,1777
-30,RU,Russia,1772
-31,KR,South Korea,1771
+26,PY,Paraguay,1780
+26,UA,Ukraine,1780
+28,CA,Canada,1777
+29,RU,Russia,1772
+30,KR,South Korea,1771
+31,SQ,Scotland,1768
 32,NG,Nigeria,1767
 33,DZ,Algeria,1759
 34,IR,Iran,1756
