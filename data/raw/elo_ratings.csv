@@ -1,5 +1,5 @@
 rank,elo_code,team_name,elo_rating
-1,ES,Spain,2129
+1,ES,Spain,2134
 2,AR,Argentina,2128
 3,FR,France,2084
 4,EN,England,2055
@@ -62,8 +62,8 @@ rank,elo_code,team_name,elo_rating
 61,CR,Costa Rica,1608
 62,EI,Northern Ireland,1606
 62,CV,Cape Verde,1606
-64,SA,Saudi Arabia,1598
-65,BA,Bosnia and Herzegovina,1596
+64,BA,Bosnia and Herzegovina,1596
+65,SA,Saudi Arabia,1593
 66,IQ,Iraq,1592
 67,NM,North Macedonia,1589
 68,ML,Mali,1588
