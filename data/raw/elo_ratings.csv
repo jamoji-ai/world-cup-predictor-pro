@@ -5,9 +5,9 @@ rank,elo_code,team_name,elo_rating
 4,EN,England,2055
 5,CO,Colombia,1998
 6,BR,Brazil,1986
-7,PT,Portugal,1967
-8,NL,Netherlands,1944
-9,DE,Germany,1939
+7,NL,Netherlands,1972
+8,PT,Portugal,1967
+9,DE,Germany,1954
 10,NO,Norway,1929
 11,JP,Japan,1910
 12,MX,Mexico,1896
@@ -33,11 +33,11 @@ rank,elo_code,team_name,elo_rating
 32,NG,Nigeria,1767
 33,DZ,Algeria,1759
 34,IR,Iran,1756
-35,SE,Sweden,1755
-36,GR,Greece,1744
-37,CI,Ivory Coast,1743
-38,RS,Serbia,1734
-39,VE,Venezuela,1733
+35,GR,Greece,1744
+36,RS,Serbia,1734
+37,VE,Venezuela,1733
+38,CI,Ivory Coast,1728
+39,SE,Sweden,1727
 40,CL,Chile,1717
 41,KO,Kosovo,1715
 42,EG,Egypt,1711
