@@ -4,9 +4,9 @@ rank,elo_code,team_name,elo_rating
 3,FR,France,2090
 4,EN,England,2055
 5,CO,Colombia,1998
-6,BR,Brazil,1986
-7,NL,Netherlands,1972
-8,PT,Portugal,1967
+6,PT,Portugal,1988
+7,BR,Brazil,1986
+8,NL,Netherlands,1972
 9,DE,Germany,1954
 10,NO,Norway,1951
 11,JP,Japan,1925
@@ -45,11 +45,11 @@ rank,elo_code,team_name,elo_rating
 43,PL,Poland,1710
 45,PE,Peru,1699
 45,IE,Ireland,1699
-47,UZ,Uzbekistan,1698
-48,CZ,Czechia,1696
-49,PA,Panama,1683
-50,WA,Wales,1682
-50,SI,Slovenia,1682
+47,CZ,Czechia,1696
+48,PA,Panama,1683
+49,WA,Wales,1682
+49,SI,Slovenia,1682
+51,UZ,Uzbekistan,1677
 52,CD,DR Congo,1674
 53,SK,Slovakia,1667
 54,GE,Georgia,1654
