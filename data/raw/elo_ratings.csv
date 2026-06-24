@@ -10,9 +10,9 @@ rank,elo_code,team_name,elo_rating
 9,DE,Germany,1954
 10,NO,Norway,1951
 11,JP,Japan,1925
+12,HR,Croatia,1896
 12,MX,Mexico,1896
-13,CH,Switzerland,1885
-14,HR,Croatia,1881
+14,CH,Switzerland,1885
 15,DK,Denmark,1869
 15,IT,Italy,1869
 15,BE,Belgium,1869
@@ -46,11 +46,11 @@ rank,elo_code,team_name,elo_rating
 45,PE,Peru,1699
 45,IE,Ireland,1699
 47,CZ,Czechia,1696
-48,PA,Panama,1683
-49,WA,Wales,1682
-49,SI,Slovenia,1682
-51,UZ,Uzbekistan,1677
-52,CD,DR Congo,1674
+48,WA,Wales,1682
+48,SI,Slovenia,1682
+50,UZ,Uzbekistan,1677
+51,CD,DR Congo,1674
+52,PA,Panama,1668
 53,SK,Slovakia,1667
 54,GE,Georgia,1654
 55,IL,Israel,1647
