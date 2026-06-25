@@ -11,8 +11,8 @@ rank,elo_code,team_name,elo_rating
 10,NO,Norway,1951
 11,JP,Japan,1925
 12,CH,Switzerland,1914
-13,HR,Croatia,1896
-13,MX,Mexico,1896
+13,MX,Mexico,1912
+14,HR,Croatia,1896
 15,MA,Morocco,1877
 16,DK,Denmark,1869
 16,IT,Italy,1869
@@ -28,26 +28,26 @@ rank,elo_code,team_name,elo_rating
 27,DZ,Algeria,1780
 27,UA,Ukraine,1780
 29,RU,Russia,1772
-30,KR,South Korea,1771
-31,NG,Nigeria,1767
-32,IR,Iran,1766
-33,CA,Canada,1748
-34,SQ,Scotland,1745
-35,GR,Greece,1744
-36,EG,Egypt,1740
-37,RS,Serbia,1734
-38,VE,Venezuela,1733
-39,CI,Ivory Coast,1728
-40,SE,Sweden,1727
+30,NG,Nigeria,1767
+31,IR,Iran,1766
+32,CA,Canada,1748
+33,SQ,Scotland,1745
+34,GR,Greece,1744
+35,EG,Egypt,1740
+36,RS,Serbia,1734
+37,VE,Venezuela,1733
+38,CI,Ivory Coast,1728
+39,SE,Sweden,1727
+40,KR,South Korea,1723
 41,CL,Chile,1717
 42,KO,Kosovo,1714
 43,HU,Hungary,1710
 43,PL,Poland,1710
 45,PE,Peru,1699
 45,IE,Ireland,1699
-47,CZ,Czechia,1696
-48,WA,Wales,1682
-48,SI,Slovenia,1682
+47,WA,Wales,1682
+47,SI,Slovenia,1682
+49,CZ,Czechia,1680
 50,UZ,Uzbekistan,1677
 51,PA,Panama,1668
 52,SK,Slovakia,1667
@@ -68,16 +68,16 @@ rank,elo_code,team_name,elo_rating
 67,ML,Mali,1588
 68,IQ,Iraq,1586
 69,GH,Ghana,1584
-70,TN,Tunisia,1570
-70,HN,Honduras,1570
-72,IS,Iceland,1568
-73,NZ,New Zealand,1549
-74,AO,Angola,1542
-75,AE,United Arab Emirates,1540
-76,FI,Finland,1536
-77,BF,Burkina Faso,1529
-78,ZA,South Africa,1527
-78,JM,Jamaica,1527
+70,ZA,South Africa,1575
+71,TN,Tunisia,1570
+71,HN,Honduras,1570
+73,IS,Iceland,1568
+74,NZ,New Zealand,1549
+75,AO,Angola,1542
+76,AE,United Arab Emirates,1540
+77,FI,Finland,1536
+78,BF,Burkina Faso,1529
+79,JM,Jamaica,1527
 80,BY,Belarus,1522
 81,HT,Haiti,1517
 82,GT,Guatemala,1505
