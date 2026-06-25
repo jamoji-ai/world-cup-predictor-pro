@@ -3,9 +3,9 @@ rank,elo_code,team_name,elo_rating
 2,ES,Spain,2134
 3,FR,France,2090
 4,EN,England,2028
-5,CO,Colombia,2006
-6,PT,Portugal,1988
-7,BR,Brazil,1986
+5,BR,Brazil,2009
+6,CO,Colombia,2006
+7,PT,Portugal,1988
 8,NL,Netherlands,1972
 9,DE,Germany,1954
 10,NO,Norway,1951
@@ -13,10 +13,10 @@ rank,elo_code,team_name,elo_rating
 12,CH,Switzerland,1914
 13,HR,Croatia,1896
 13,MX,Mexico,1896
-15,DK,Denmark,1869
-15,IT,Italy,1869
-15,BE,Belgium,1869
-18,MA,Morocco,1866
+15,MA,Morocco,1877
+16,DK,Denmark,1869
+16,IT,Italy,1869
+16,BE,Belgium,1869
 19,EC,Ecuador,1864
 20,UY,Uruguay,1851
 21,AT,Austria,1841
@@ -29,10 +29,10 @@ rank,elo_code,team_name,elo_rating
 27,UA,Ukraine,1780
 29,RU,Russia,1772
 30,KR,South Korea,1771
-31,SQ,Scotland,1768
-32,NG,Nigeria,1767
-33,IR,Iran,1766
-34,CA,Canada,1748
+31,NG,Nigeria,1767
+32,IR,Iran,1766
+33,CA,Canada,1748
+34,SQ,Scotland,1745
 35,GR,Greece,1744
 36,EG,Egypt,1740
 37,RS,Serbia,1734
@@ -76,10 +76,10 @@ rank,elo_code,team_name,elo_rating
 75,AE,United Arab Emirates,1540
 76,FI,Finland,1536
 77,BF,Burkina Faso,1529
-78,HT,Haiti,1528
-79,ZA,South Africa,1527
-79,JM,Jamaica,1527
-81,BY,Belarus,1522
+78,ZA,South Africa,1527
+78,JM,Jamaica,1527
+80,BY,Belarus,1522
+81,HT,Haiti,1517
 82,GT,Guatemala,1505
 83,OM,Oman,1480
 84,SY,Syria,1479
