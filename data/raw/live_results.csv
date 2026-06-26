@@ -1,6 +1,7 @@
 home_team,away_team,home_score,away_score
 Mexico,South Africa,2,0
 South Korea,Czech Republic,2,1
+Canada,Bosnia and Herzegovina,1,1
 United States,Paraguay,4,1
 Qatar,Switzerland,1,1
 Brazil,Morocco,1,1
@@ -54,3 +55,7 @@ Czech Republic,Mexico,0,3
 South Africa,South Korea,1,0
 Ecuador,Germany,2,1
 Curaçao,Ivory Coast,0,2
+Tunisia,Netherlands,1,3
+Japan,Sweden,1,1
+Turkey,United States,3,2
+Paraguay,Australia,0,0
