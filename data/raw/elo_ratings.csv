@@ -1,6 +1,6 @@
 rank,elo_code,team_name,elo_rating
+1,ES,Spain,2144
 1,AR,Argentina,2144
-2,ES,Spain,2134
 3,FR,France,2123
 4,EN,England,2028
 5,BR,Brazil,2009
@@ -19,9 +19,9 @@ rank,elo_code,team_name,elo_rating
 17,IT,Italy,1869
 17,BE,Belgium,1869
 20,TR,Turkey,1852
-21,UY,Uruguay,1851
-22,SN,Senegal,1842
-23,AT,Austria,1841
+21,SN,Senegal,1842
+22,UY,Uruguay,1841
+22,AT,Austria,1841
 24,PY,Paraguay,1815
 25,AU,Australia,1800
 26,US,United States,1781
@@ -56,14 +56,14 @@ rank,elo_code,team_name,elo_rating
 55,IL,Israel,1647
 56,RO,Romania,1639
 57,JO,Jordan,1632
-58,CV,Cape Verde,1625
-59,BA,Bosnia and Herzegovina,1622
+58,BA,Bosnia and Herzegovina,1622
+58,CV,Cape Verde,1622
 60,BO,Bolivia,1621
 61,AL,Albania,1616
 62,CM,Cameroon,1614
 63,CR,Costa Rica,1608
 64,EI,Northern Ireland,1605
-65,SA,Saudi Arabia,1593
+65,SA,Saudi Arabia,1596
 66,NM,North Macedonia,1589
 67,ML,Mali,1588
 68,GH,Ghana,1584
