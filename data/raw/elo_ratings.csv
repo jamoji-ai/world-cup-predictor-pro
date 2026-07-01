@@ -2,7 +2,7 @@ rank,elo_code,team_name,elo_rating
 1,AR,Argentina,2148
 2,ES,Spain,2144
 3,FR,France,2134
-4,EN,England,2038
+4,EN,England,2046
 5,BR,Brazil,2031
 6,CO,Colombia,2004
 7,PT,Portugal,1990
@@ -41,9 +41,9 @@ rank,elo_code,team_name,elo_rating
 40,KR,South Korea,1723
 41,CL,Chile,1717
 42,KO,Kosovo,1714
-43,CD,DR Congo,1712
-44,HU,Hungary,1710
-44,PL,Poland,1710
+43,HU,Hungary,1710
+43,PL,Poland,1710
+45,CD,DR Congo,1704
 46,PE,Peru,1699
 46,IE,Ireland,1699
 48,WA,Wales,1682
