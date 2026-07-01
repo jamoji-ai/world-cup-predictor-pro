@@ -1,13 +1,13 @@
 rank,elo_code,team_name,elo_rating
 1,AR,Argentina,2148
 2,ES,Spain,2144
-3,FR,France,2123
+3,FR,France,2134
 4,EN,England,2038
 5,BR,Brazil,2031
 6,CO,Colombia,2004
 7,PT,Portugal,1990
 8,NL,Netherlands,1971
-9,NO,Norway,1918
+9,NO,Norway,1934
 10,CH,Switzerland,1914
 11,MX,Mexico,1912
 12,DE,Germany,1908
@@ -33,11 +33,11 @@ rank,elo_code,team_name,elo_rating
 31,CA,Canada,1764
 33,SQ,Scotland,1745
 34,GR,Greece,1744
-35,CI,Ivory Coast,1743
-36,SE,Sweden,1742
-36,EG,Egypt,1742
-38,RS,Serbia,1734
-39,VE,Venezuela,1733
+35,EG,Egypt,1742
+36,RS,Serbia,1734
+37,VE,Venezuela,1733
+38,SE,Sweden,1731
+39,CI,Ivory Coast,1727
 40,KR,South Korea,1723
 41,CL,Chile,1717
 42,KO,Kosovo,1714
