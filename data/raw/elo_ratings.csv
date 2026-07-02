@@ -24,8 +24,8 @@ rank,elo_code,team_name,elo_rating
 23,PY,Paraguay,1823
 24,SN,Senegal,1816
 25,AU,Australia,1800
-26,DZ,Algeria,1785
-27,US,United States,1781
+26,US,United States,1798
+27,DZ,Algeria,1785
 28,UA,Ukraine,1780
 29,RU,Russia,1772
 30,NG,Nigeria,1767
@@ -56,13 +56,13 @@ rank,elo_code,team_name,elo_rating
 55,RO,Romania,1639
 56,UZ,Uzbekistan,1631
 57,JO,Jordan,1628
-58,BA,Bosnia and Herzegovina,1622
 58,CV,Cape Verde,1622
-60,BO,Bolivia,1621
-61,AL,Albania,1616
-62,CM,Cameroon,1614
-63,CR,Costa Rica,1608
-64,EI,Northern Ireland,1605
+59,BO,Bolivia,1621
+60,AL,Albania,1616
+61,CM,Cameroon,1614
+62,CR,Costa Rica,1608
+63,EI,Northern Ireland,1605
+63,BA,Bosnia and Herzegovina,1605
 65,SA,Saudi Arabia,1596
 66,NM,North Macedonia,1589
 67,ML,Mali,1588
