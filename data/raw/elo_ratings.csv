@@ -8,8 +8,8 @@ rank,elo_code,team_name,elo_rating
 7,CO,Colombia,2004
 8,NL,Netherlands,1971
 9,MX,Mexico,1943
-10,NO,Norway,1934
-11,CH,Switzerland,1914
+9,CH,Switzerland,1943
+11,NO,Norway,1934
 12,BE,Belgium,1910
 13,DE,Germany,1908
 14,JP,Japan,1888
@@ -25,12 +25,12 @@ rank,elo_code,team_name,elo_rating
 24,SN,Senegal,1816
 25,AU,Australia,1800
 26,US,United States,1798
-27,DZ,Algeria,1785
-28,UA,Ukraine,1780
-29,RU,Russia,1772
-30,NG,Nigeria,1767
-31,IR,Iran,1764
-31,CA,Canada,1764
+27,UA,Ukraine,1780
+28,RU,Russia,1772
+29,NG,Nigeria,1767
+30,IR,Iran,1764
+30,CA,Canada,1764
+32,DZ,Algeria,1756
 33,SQ,Scotland,1745
 34,GR,Greece,1744
 35,EG,Egypt,1742
