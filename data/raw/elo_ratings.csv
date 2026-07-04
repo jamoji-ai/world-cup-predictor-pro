@@ -1,6 +1,6 @@
 rank,elo_code,team_name,elo_rating
 1,ES,Spain,2159
-2,AR,Argentina,2148
+2,AR,Argentina,2151
 3,FR,France,2134
 4,EN,England,2046
 5,BR,Brazil,2031
@@ -56,8 +56,8 @@ rank,elo_code,team_name,elo_rating
 55,RO,Romania,1639
 56,UZ,Uzbekistan,1631
 57,JO,Jordan,1628
-58,CV,Cape Verde,1622
-59,BO,Bolivia,1621
+58,BO,Bolivia,1621
+59,CV,Cape Verde,1619
 60,AL,Albania,1616
 61,CM,Cameroon,1614
 62,CR,Costa Rica,1608
