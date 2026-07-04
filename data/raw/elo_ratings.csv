@@ -5,7 +5,7 @@ rank,elo_code,team_name,elo_rating
 4,EN,England,2046
 5,BR,Brazil,2031
 6,PT,Portugal,2013
-7,CO,Colombia,2004
+7,CO,Colombia,2009
 8,NL,Netherlands,1971
 9,MX,Mexico,1943
 9,CH,Switzerland,1943
@@ -66,8 +66,8 @@ rank,elo_code,team_name,elo_rating
 65,SA,Saudi Arabia,1596
 66,NM,North Macedonia,1589
 67,ML,Mali,1588
-68,GH,Ghana,1575
-69,HN,Honduras,1570
+68,GH,Ghana,1570
+68,HN,Honduras,1570
 70,IS,Iceland,1568
 71,TN,Tunisia,1562
 72,IQ,Iraq,1561
