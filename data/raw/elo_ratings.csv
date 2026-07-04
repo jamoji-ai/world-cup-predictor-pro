@@ -10,10 +10,10 @@ rank,elo_code,team_name,elo_rating
 9,MX,Mexico,1943
 9,CH,Switzerland,1943
 11,NO,Norway,1934
-12,BE,Belgium,1910
-13,DE,Germany,1908
-14,JP,Japan,1888
-15,MA,Morocco,1886
+12,MA,Morocco,1921
+13,BE,Belgium,1910
+14,DE,Germany,1908
+15,JP,Japan,1888
 16,HR,Croatia,1882
 17,EC,Ecuador,1871
 18,DK,Denmark,1869
@@ -29,14 +29,14 @@ rank,elo_code,team_name,elo_rating
 28,RU,Russia,1772
 29,NG,Nigeria,1767
 30,IR,Iran,1764
-30,CA,Canada,1764
-32,DZ,Algeria,1756
-33,EG,Egypt,1747
-34,SQ,Scotland,1745
-35,GR,Greece,1744
-36,RS,Serbia,1734
-37,VE,Venezuela,1733
-38,SE,Sweden,1731
+31,DZ,Algeria,1756
+32,EG,Egypt,1747
+33,SQ,Scotland,1745
+34,GR,Greece,1744
+35,RS,Serbia,1734
+36,VE,Venezuela,1733
+37,SE,Sweden,1731
+38,CA,Canada,1729
 39,CI,Ivory Coast,1727
 40,KR,South Korea,1723
 41,CL,Chile,1717
