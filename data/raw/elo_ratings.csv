@@ -1,7 +1,7 @@
 rank,elo_code,team_name,elo_rating
 1,ES,Spain,2159
 2,AR,Argentina,2151
-3,FR,France,2134
+3,FR,France,2143
 4,EN,England,2046
 5,BR,Brazil,2031
 6,PT,Portugal,2013
@@ -20,9 +20,9 @@ rank,elo_code,team_name,elo_rating
 18,IT,Italy,1869
 20,TR,Turkey,1852
 21,UY,Uruguay,1841
-22,PY,Paraguay,1823
-23,AT,Austria,1821
-24,SN,Senegal,1816
+22,AT,Austria,1821
+23,SN,Senegal,1816
+24,PY,Paraguay,1814
 25,US,United States,1798
 26,AU,Australia,1795
 27,UA,Ukraine,1780
