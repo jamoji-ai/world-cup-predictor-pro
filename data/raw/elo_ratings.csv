@@ -14,7 +14,7 @@ rank,elo_code,team_name,elo_rating
 13,MX,Mexico,1913
 14,DE,Germany,1907
 15,JP,Japan,1888
-16,HR,Croatia,1881
+16,HR,Croatia,1882
 17,EC,Ecuador,1871
 18,DK,Denmark,1869
 18,IT,Italy,1869
@@ -61,8 +61,8 @@ rank,elo_code,team_name,elo_rating
 60,AL,Albania,1616
 61,CM,Cameroon,1613
 62,CR,Costa Rica,1609
-63,EI,Northern Ireland,1606
-64,BA,Bosnia and Herzegovina,1605
+63,EI,Northern Ireland,1605
+63,BA,Bosnia and Herzegovina,1605
 65,SA,Saudi Arabia,1596
 66,NM,North Macedonia,1589
 67,ML,Mali,1588
@@ -182,7 +182,7 @@ rank,elo_code,team_name,elo_rating
 182,KN,Saint Kitts and Nevis,1030
 183,GI,Gibraltar,1011
 184,JS,Somaliland,1005
-185,LC,Saint Lucia,1003
+185,LC,Saint Lucia,1004
 186,EH,Western Sahara,996
 187,MM,Myanmar,984
 188,AW,Aruba,979
@@ -224,7 +224,7 @@ rank,elo_code,team_name,elo_rating
 224,BS,Bahamas,685
 225,PM,Saint Pierre and Miquelon,677
 226,TC,Turks and Caicos Islands,657
-227,AI,Anguilla,647
+227,AI,Anguilla,646
 228,TE,Tibet,629
 229,VI,US Virgin Islands,628
 230,BT,Bhutan,623
