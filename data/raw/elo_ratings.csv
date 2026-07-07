@@ -8,10 +8,10 @@ rank,elo_code,team_name,elo_rating
 7,BR,Brazil,1993
 8,NO,Norway,1972
 9,NL,Netherlands,1971
-10,CH,Switzerland,1943
-11,MA,Morocco,1921
-12,MX,Mexico,1913
-13,BE,Belgium,1910
+10,BE,Belgium,1961
+11,CH,Switzerland,1943
+12,MA,Morocco,1921
+13,MX,Mexico,1913
 14,DE,Germany,1907
 15,JP,Japan,1888
 16,HR,Croatia,1881
@@ -23,14 +23,14 @@ rank,elo_code,team_name,elo_rating
 22,AT,Austria,1821
 23,SN,Senegal,1816
 24,PY,Paraguay,1814
-25,US,United States,1798
-26,AU,Australia,1795
-27,UA,Ukraine,1780
-28,RU,Russia,1772
-29,NG,Nigeria,1767
-30,IR,Iran,1764
-31,DZ,Algeria,1756
-32,EG,Egypt,1747
+25,AU,Australia,1795
+26,UA,Ukraine,1780
+27,RU,Russia,1772
+28,NG,Nigeria,1767
+29,IR,Iran,1764
+30,DZ,Algeria,1756
+31,EG,Egypt,1747
+31,US,United States,1747
 33,SQ,Scotland,1745
 34,GR,Greece,1744
 35,RS,Serbia,1734
