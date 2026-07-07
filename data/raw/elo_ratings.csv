@@ -1,6 +1,6 @@
 rank,elo_code,team_name,elo_rating
 1,ES,Spain,2177
-2,AR,Argentina,2151
+2,AR,Argentina,2156
 3,FR,France,2143
 4,EN,England,2076
 5,CO,Colombia,2009
@@ -29,10 +29,10 @@ rank,elo_code,team_name,elo_rating
 28,NG,Nigeria,1767
 29,IR,Iran,1764
 30,DZ,Algeria,1756
-31,EG,Egypt,1747
 31,US,United States,1747
-33,SQ,Scotland,1745
-34,GR,Greece,1744
+32,SQ,Scotland,1745
+33,GR,Greece,1744
+34,EG,Egypt,1742
 35,RS,Serbia,1734
 36,VE,Venezuela,1733
 37,SE,Sweden,1731
