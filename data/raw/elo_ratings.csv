@@ -14,7 +14,7 @@ rank,elo_code,team_name,elo_rating
 13,MX,Mexico,1913
 14,DE,Germany,1907
 15,JP,Japan,1888
-16,HR,Croatia,1882
+16,HR,Croatia,1881
 17,EC,Ecuador,1871
 18,DK,Denmark,1869
 18,IT,Italy,1869
@@ -44,8 +44,8 @@ rank,elo_code,team_name,elo_rating
 43,HU,Hungary,1710
 43,PL,Poland,1710
 45,CD,DR Congo,1704
-46,PE,Peru,1699
-46,IE,Ireland,1699
+46,PE,Peru,1700
+47,IE,Ireland,1699
 48,WA,Wales,1682
 48,SI,Slovenia,1682
 50,CZ,Czechia,1680
@@ -60,7 +60,7 @@ rank,elo_code,team_name,elo_rating
 59,CV,Cape Verde,1619
 60,AL,Albania,1616
 61,CM,Cameroon,1613
-62,CR,Costa Rica,1609
+62,CR,Costa Rica,1608
 63,EI,Northern Ireland,1605
 63,BA,Bosnia and Herzegovina,1605
 65,SA,Saudi Arabia,1596
@@ -85,7 +85,7 @@ rank,elo_code,team_name,elo_rating
 83,OM,Oman,1479
 85,PS,Palestine,1465
 86,GN,Guinea,1463
-87,ME,Montenegro,1460
+87,ME,Montenegro,1461
 88,BG,Bulgaria,1458
 89,LU,Luxembourg,1450
 90,NS,Northern Cyprus,1442
@@ -188,7 +188,7 @@ rank,elo_code,team_name,elo_rating
 188,AW,Aruba,979
 188,SO,Somalia,979
 190,SX,Sint Maarten,975
-191,MS,Montserrat,971
+191,MS,Montserrat,972
 192,AF,Afghanistan,961
 193,GL,Greenland,945
 194,BD,Bangladesh,942
@@ -205,7 +205,7 @@ rank,elo_code,team_name,elo_rating
 205,LK,Sri Lanka,836
 206,SM,San Marino,825
 207,TW,Taiwan,822
-208,BQ,Bonaire,817
+208,BQ,Bonaire,816
 209,MV,Maldives,801
 210,KY,Cayman Islands,800
 211,HG,Chagos Islands,782
