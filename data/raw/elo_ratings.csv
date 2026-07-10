@@ -1,7 +1,7 @@
 rank,elo_code,team_name,elo_rating
 1,ES,Spain,2177
-2,AR,Argentina,2156
-3,FR,France,2143
+2,FR,France,2163
+3,AR,Argentina,2156
 4,EN,England,2076
 5,CO,Colombia,2003
 6,PT,Portugal,1995
@@ -10,9 +10,9 @@ rank,elo_code,team_name,elo_rating
 9,NL,Netherlands,1971
 10,BE,Belgium,1961
 11,CH,Switzerland,1949
-12,MA,Morocco,1921
-13,MX,Mexico,1913
-14,DE,Germany,1907
+12,MX,Mexico,1913
+13,DE,Germany,1907
+14,MA,Morocco,1901
 15,JP,Japan,1888
 16,HR,Croatia,1881
 17,EC,Ecuador,1871
