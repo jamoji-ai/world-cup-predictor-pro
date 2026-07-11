@@ -14,7 +14,7 @@ rank,elo_code,team_name,elo_rating
 13,DE,Germany,1908
 14,MA,Morocco,1901
 15,JP,Japan,1888
-16,HR,Croatia,1881
+16,HR,Croatia,1882
 17,EC,Ecuador,1871
 18,DK,Denmark,1869
 18,IT,Italy,1869
@@ -71,7 +71,7 @@ rank,elo_code,team_name,elo_rating
 70,IS,Iceland,1568
 71,TN,Tunisia,1562
 72,IQ,Iraq,1561
-73,ZA,South Africa,1560
+73,ZA,South Africa,1559
 74,AO,Angola,1542
 75,AE,United Arab Emirates,1540
 76,FI,Finland,1536
